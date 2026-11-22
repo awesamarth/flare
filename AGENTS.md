@@ -13,6 +13,7 @@ Flare is a React Native mobile app concept for offline friend finding at crowded
 
 - Use React Native with TypeScript and Bun for package/script workflows.
 - Use the mesh SDK as the offline transport layer for encrypted chat, group/location payloads, peer discovery, retries, and transport switching.
+- Mesh SDK `@offline-protocol/mesh-sdk@0.26.0` is installed via Bun; full SDK README is at `node_modules/@offline-protocol/mesh-sdk/README.md` (old `reference-dumps/meshsdk.txt` was removed).
 - GPS/GNSS and compass/IMU are outside the mesh SDK and should be handled with React Native/native location and sensor APIs.
 - BLE/WiFi Direct/Internet/Reticulum from the SDK can complement each other, but the app must degrade cleanly when any signal is weak or unavailable.
 
@@ -24,54 +25,29 @@ Flare is a React Native mobile app concept for offline friend finding at crowded
 
 ## Current Project Status
 
-- React Native app has been scaffolded directly in the repo root with TypeScript and Bun.
-- Git has been initialized, but no initial commit has been made yet.
-- Android physical-device development works with the connected phone when `adb devices` shows `eeb57179 device`.
-- Metro dev server was started with `bun run start` on port 8081 during the session.
-- Android app was installed successfully once with `bun run android`.
-- The generated Gradle wrapper was changed from Gradle 9.3.1 to Gradle 8.13 because Gradle 9 hit a `JvmVendorSpec IBM_SEMERU` toolchain error.
-- `adb reverse tcp:8081 tcp:8081` is only needed after device reconnects or when the phone shows "Unable to load script"; do not run it after every visual tweak if Fast Refresh is working.
+- Real app (no mocks) in `src/`: `App.tsx` (navigation), `screens/`, `components/`, `services/` (mesh, location, meet, scanner, permissions), `state/` (zustand + MMKV), `protocol/` (wire envelope, QR links), `lib/`.
+- Mesh SDK `@offline-protocol/mesh-sdk@0.34.0`. Upgrade guide: `docs/UPGRADING.md` in the SDK's GitHub repo (do not copy into this repo).
+- Stack: `react-native-nitro-geolocation` (GPS + compass), `react-native-data-scanner` (QR), `react-native-mmkv`, `react-native-svg`, `react-native-qrcode-svg`, React Navigation. No Expo.
+- Home is radar-first (active group). Groups list, group details, chat, find (Bluetooth hot/cold), meeting point (SDK DataStore), status screens.
+- Transports: BLE + Wi-Fi Direct (`autoAccept`, `fastLink: 'requestedOnly'`). `advertiseNodeHash` is an Android opt-in toggle on the Status screen (privacy cost).
+- Only tested on one Android phone (Nothing `eeb57179`). iOS has never been built. Multi-device flows (join, chat, location, rssi, meet sync) are untested.
+- Known gap: location is not shared while the app is backgrounded (needs a location foreground service / background permission).
 
-## Current UI State
+## Dev Workflow
 
-- `App.tsx` now contains a static Flare compass prototype with mock group/friend data.
-- The prototype supports light/dark mode via `useColorScheme`.
-- Main screen includes:
-  - group header: `Afterglow`
-  - `Mesh live` status pill
-  - circular radar/compass
-  - colored friend markers around the rim
-  - selectable friend marker labels
-  - bottom friend sheet with distance, bearing, last seen, signal confidence, and `Ping`, `Chat`, `Map` actions
-- The center "you" arrow uses `assets/ui/navigation-arrow-fill.png`, generated from `navigation-arrow-fill.svg`, tinted orange in React Native.
-- Latest device screenshot was captured at `screenshots/flare-current.png`.
-- To capture future phone screenshots without WhatsApp/manual sharing, use:
-  `mkdir -p screenshots && adb exec-out screencap -p > screenshots/flare-current.png`
+- Fast Android build: `cd android && ./gradlew assembleDebug -PreactNativeArchitectures=arm64-v8a`, or `bun run android` (active arch only).
+- iOS pods: `cd ios && bundle exec pod install`.
+- New files/screens may not hot-reload: force-stop and relaunch the app.
+- `adb reverse tcp:8081 tcp:8081` only after reconnects / "Unable to load script".
+- Screenshot: `adb exec-out screencap -p > screenshots/flare-current.png`.
 
 ## Assets
 
-- `assets/brand/flare.png` is the 1024x1024 source image provided for the app icon.
-- Android launcher icons were generated into `android/app/src/main/res/mipmap-*`.
-- iOS app icons were generated into `ios/Flare/Images.xcassets/AppIcon.appiconset` and `Contents.json` was updated.
-- Android launcher icon currently needs later cleanup: it may appear padded/with an unwanted launcher background because adaptive icons were not set up yet.
-- `navigation-arrow-fill.svg` is the source arrow asset added by the user.
-- `assets/ui/navigation-arrow-fill.png` is the current rendered arrow mask used by the app.
-- `assets/ui/navigation-arrow.png` is an earlier generated arrow attempt and can likely be removed later if unused.
-- `icon-concepts.html` is an earlier logo review page with rejected concepts and can likely be removed later if not useful.
+- `assets/brand/flare.png`: 1024x1024 source art for app icons.
+- Android launcher: adaptive icon (`mipmap-anydpi-v26`) with the brand art as the background layer; legacy PNGs in `mipmap-*` for API 24-25.
+- `drawable/ic_notification.xml`: monochrome arrow for notifications and the themed launcher icon.
+- iOS app icons in `ios/Flare/Images.xcassets/AppIcon.appiconset`.
 
 ## Validation
 
-- `bun run lint` passed after the current UI implementation.
-- `bun run test -- --runInBand` passed after the current UI implementation.
-- Per user preference, do not run lint/tests after every tiny visual tweak. Use them before meaningful handoff or when touching logic.
-
-## Next Useful Steps
-
-- Commit the current scaffold once the user is ready.
-- Polish the compass UI spacing and center arrow size/opacity.
-- Add real navigation/vector support later, likely with `react-native-svg`, instead of relying on rasterized SVG masks.
-- Add profile/group setup screens: username, unique group color, QR/invite flow.
-- Add GPS/GNSS location and compass/heading sensors.
-- Add mesh SDK integration for encrypted chat and location payloads.
-- Decide offline map MVP: calibrated venue map image first, MapLibre/offline tile packs later.
-- Add Android adaptive icon resources so the launcher icon is not padded or placed on an unwanted background.
+- `bunx tsc --noEmit`, `bun run lint`, `bun run test -- --runInBand`. Run before handoff, not after every visual tweak.

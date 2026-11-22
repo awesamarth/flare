@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The Flare logo as one colour, for Android 13+ themed icons: arrow, star above
+  it, the broken ring and the spike below. Traced from assets/brand/flare.png.
+  The star's top ray and the spike are shortened so the glyph is nearly square:
+  some launchers (Nothing) fit the glyph's bounding box to a fixed size, and a
+  tall glyph comes out small.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Scaled up around the centre so the logo fills the icon. -->
+    <group
+        android:pivotX="54"
+        android:pivotY="54"
+        android:scaleX="1.4"
+        android:scaleY="1.4">
+        <!-- Ring segments -->
+        <path
+            android:strokeColor="#FFFFFFFF"
+            android:strokeWidth="1.8"
+            android:strokeLineCap="round"
+            android:fillColor="#00000000"
+            android:pathData="M34.9,51.3 A19.3,19.3 0 0,1 46.1,36.4
+                M61.9,36.4 A19.3,19.3 0 0,1 73.1,51.3
+                M73.3,54.8 A19.3,19.3 0 0,1 68.6,66.6
+                M65.6,69.4 A19.3,19.3 0 0,1 42.4,69.4
+                M39.4,66.6 A19.3,19.3 0 0,1 34.7,55.0" />
+        <!-- Star -->
+        <path
+            android:fillColor="#FFFFFFFF"
+            android:pathData="M54,30.2 L55.2,32.6 L62.2,33.7 L55.3,35.0 L54,40.4 L52.7,35.0 L45.8,33.7 L52.8,32.6 Z" />
+        <!-- Arrow -->
+        <path
+            android:fillColor="#FFFFFFFF"
+            android:pathData="M54,41.6 L66.4,67.3 L54,57.2 L41.6,67.3 Z" />
+        <!-- Spike below -->
+        <path
+            android:fillColor="#FFFFFFFF"
+            android:pathData="M54,62.4 L55.5,67.0 L54,75.0 L52.5,67.0 Z" />
+    </group>
+</vector>
