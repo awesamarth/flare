@@ -50,6 +50,8 @@ type RuntimeState = {
   headingAvailable: boolean;
   /** "Allow all the time" granted, so location keeps sharing in a pocket. */
   backgroundLocation: boolean;
+  /** Last battery state handed to the mesh SDK. */
+  battery?: { level: number; charging: boolean; at: number };
 
   alerts: Alert[];
 

@@ -34,6 +34,16 @@ import {
 import { useProfile } from '../state/profile';
 import { useRuntime } from '../state/runtime';
 import { MEMBER_COLORS } from '../theme';
+import { startBatteryReporting } from './battery';
+import {
+  isEventMapDoc,
+  loadAllEventMaps,
+  loadEventMap,
+  onAttachmentReceived,
+  onAttachmentRequested,
+  onAttachmentUnavailable,
+  retryMissingEventMaps,
+} from './eventmap';
 import { loadAllMeets, loadMeet, MEET_DOC } from './meet';
 import { notifySystem } from './notify';
 import { requestAndroidPermissions } from './permissions';
@@ -83,6 +93,16 @@ export function setActiveConversation(conv: ConversationId | null) {
   activeConversation = conv;
   if (conv) {
     useMessages.getState().markRead(conv);
+  }
+}
+
+/** Battery level (0-100) for the SDK's relay and transport decisions. */
+function reportBattery(level: number, charging: boolean) {
+  if (protocol && isMeshRunning()) {
+    protocol
+      .setBatteryState(Math.round(Math.min(100, Math.max(0, level))), charging)
+      .then(() => runtime().set({ battery: { level, charging, at: Date.now() } }))
+      .catch(() => {});
   }
 }
 
@@ -141,9 +161,11 @@ export function startMesh(): Promise<void> {
       useProfile.getState().setAddress(address);
     }
     runtime().set({ meshStatus: 'running' });
+    startBatteryReporting(reportBattery);
 
     await syncGroupsFromMesh();
     await loadAllMeets();
+    await loadAllEventMaps();
     for (const groupId of Object.keys(useGroups.getState().groups)) {
       scheduleAnnounce(groupId);
     }
@@ -200,6 +222,9 @@ function attachListeners(p: OfflineProtocol) {
     useProfile.getState().setAddress(event.address);
   });
   on(p, 'neighbor_discovered', event => {
+    if (!runtime().neighbors[event.peer_id]) {
+      retryMissingEventMaps();
+    }
     runtime().upsertNeighbor({
       id: event.peer_id,
       transport: event.transport,
@@ -230,7 +255,19 @@ function attachListeners(p: OfflineProtocol) {
     if (event.doc_id === MEET_DOC) {
       return loadMeet(event.space_id);
     }
+    if (isEventMapDoc(event.doc_id)) {
+      return loadEventMap(event.space_id);
+    }
   });
+  on(p, 'data_attachment_requested', event =>
+    onAttachmentRequested(event.space_id, event.peer_id, event.hash),
+  );
+  on(p, 'data_attachment_received', event =>
+    onAttachmentReceived(event.space_id, event.hash, event.data),
+  );
+  on(p, 'data_attachment_unavailable', event =>
+    onAttachmentUnavailable(event.space_id, event.hash),
+  );
   on(p, 'data_doc_removed', event => {
     if (event.doc_id === MEET_DOC && useGroups.getState().groups[event.space_id]) {
       useGroups.getState().upsertGroup({ id: event.space_id, meet: null });

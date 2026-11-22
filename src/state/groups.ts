@@ -35,6 +35,26 @@ export type MeetPoint = {
   ts: number;
 };
 
+/** [lng, lat] for the image's top-left, top-right, bottom-right, bottom-left. */
+export type LngLatQuad = [
+  [number, number],
+  [number, number],
+  [number, number],
+  [number, number],
+];
+
+/** The organiser's venue map pinned over the street map, shared with the group. */
+export type EventMap = {
+  hash: string;
+  mime: string;
+  corners: LngLatQuad;
+  by: string;
+  byName?: string;
+  ts: number;
+  /** Local file:// URL once we hold the image bytes. */
+  uri?: string;
+};
+
 export type JoinRequest = {
   address: string;
   name: string;
@@ -55,6 +75,7 @@ export type Group = {
   /** Whether this device currently has an SOS raised in the group. */
   mySos?: boolean;
   meet?: MeetPoint | null;
+  eventMap?: EventMap | null;
 };
 
 export type PendingJoin = {

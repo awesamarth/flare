@@ -203,7 +203,8 @@ export function ChatScreen({ navigation, route }: ScreenProps<'Chat'>) {
           onPress={send}
           style={[
             styles.send,
-            { backgroundColor: theme.primary, opacity: draft.trim() ? 1 : 0.4 },
+            { backgroundColor: theme.primary },
+            !draft.trim() && styles.dim,
           ]}>
           <Text style={[styles.sendText, { color: theme.onPrimary }]}>Send</Text>
         </Pressable>
@@ -323,7 +324,7 @@ function MessageRow({
           styles.bubble,
           mine
             ? { backgroundColor: theme.primary }
-            : { backgroundColor: theme.surface, borderColor: theme.border, borderWidth: 1 },
+            : [styles.bubbleTheirs, { backgroundColor: theme.surface, borderColor: theme.border }],
         ]}>
         <Text style={[styles.body, { color: mine ? textOn(theme.primary) : theme.text }]}>
           {message.text}
@@ -398,6 +399,7 @@ const styles = StyleSheet.create({
   mine: { alignSelf: 'flex-end', alignItems: 'flex-end' },
   theirs: { alignSelf: 'flex-start', alignItems: 'flex-start' },
   sender: { fontSize: 12, fontWeight: '800', marginBottom: 3, marginLeft: 6 },
+  bubbleTheirs: { borderWidth: 1 },
   bubble: { borderRadius: 18, paddingHorizontal: 14, paddingVertical: 9 },
   body: { fontSize: 16, lineHeight: 21 },
   meta: { fontSize: 11, fontWeight: '600', marginTop: 3, marginHorizontal: 6 },

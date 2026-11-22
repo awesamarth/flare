@@ -1,5 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, Platform, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
+import {
+  Alert,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Switch,
+  Text,
+  View,
+} from 'react-native';
 import { Button, Card, SectionTitle } from '../components/ui';
 import { formatAgo, shortAddress } from '../lib/time';
 import { useNow } from '../lib/useNow';
@@ -17,7 +25,8 @@ export function StatusScreen() {
   const advertiseNodeHash = useProfile(s => s.advertiseNodeHash);
   const setAdvertiseNodeHash = useProfile(s => s.setAdvertiseNodeHash);
   const runtime = useRuntime();
-  const [diag, setDiag] = useState<Awaited<ReturnType<typeof getMeshDiagnostics>>>(null);
+  const [diag, setDiag] =
+    useState<Awaited<ReturnType<typeof getMeshDiagnostics>>>(null);
 
   useEffect(() => {
     let active = true;
@@ -33,7 +42,9 @@ export function StatusScreen() {
     };
   }, [runtime.meshStatus]);
 
-  const neighbors = Object.values(runtime.neighbors).sort((a, b) => b.seenAt - a.seenAt);
+  const neighbors = Object.values(runtime.neighbors).sort(
+    (a, b) => b.seenAt - a.seenAt,
+  );
 
   const row = (label: string, value: string, tone?: string) => (
     <View style={styles.row} key={label}>
@@ -47,7 +58,8 @@ export function StatusScreen() {
   return (
     <ScrollView
       style={{ backgroundColor: theme.background }}
-      contentContainerStyle={styles.content}>
+      contentContainerStyle={styles.content}
+    >
       <SectionTitle>Mesh</SectionTitle>
       <Card>
         {row(
@@ -55,13 +67,29 @@ export function StatusScreen() {
           runtime.meshStatus,
           runtime.meshStatus === 'running' ? theme.success : theme.warning,
         )}
-        {runtime.meshError ? row('Error', runtime.meshError, theme.danger) : null}
+        {runtime.meshError
+          ? row('Error', runtime.meshError, theme.danger)
+          : null}
         {row('Your address', address ?? 'not ready')}
         {row('Transports', diag?.transports.join(', ') || '—')}
         {row('Bluetooth peers', diag?.blePeers?.toString() ?? '—')}
         {runtime.transport ? row('Current route', runtime.transport) : null}
-        {runtime.meshStatus !== 'running' && runtime.meshStatus !== 'starting' ? (
-          <Button label="Start mesh" compact onPress={() => startMesh()} style={styles.button} />
+        {row(
+          'Battery (to mesh)',
+          runtime.battery
+            ? `${Math.round(runtime.battery.level)}%${
+                runtime.battery.charging ? ' · charging' : ''
+              } · ${formatAgo(runtime.battery.at, now)}`
+            : 'not reported',
+        )}
+        {runtime.meshStatus !== 'running' &&
+        runtime.meshStatus !== 'starting' ? (
+          <Button
+            label="Start mesh"
+            compact
+            onPress={() => startMesh()}
+            style={styles.button}
+          />
         ) : null}
       </Card>
 
@@ -69,17 +97,23 @@ export function StatusScreen() {
       <Card>
         {neighbors.length === 0 ? (
           <Text style={{ color: theme.muted }}>
-            No Flare phones in Bluetooth range right now. Range is roughly 10 to 30 m per hop.
+            No Flare phones in Bluetooth range right now. Range is roughly 10 to
+            30 m per hop.
           </Text>
         ) : (
           neighbors.map(n => {
             const prox = runtime.proximity[n.id];
             const live = isFresh(prox, now)
-              ? ` · ${Math.round(prox.rssi)} dBm (${formatRange(rssiToRange(prox.rssi))})`
+              ? ` · ${Math.round(prox.rssi)} dBm (${formatRange(
+                  rssiToRange(prox.rssi),
+                )})`
               : n.rssi !== undefined
-                ? ` · ${n.rssi} dBm`
-                : '';
-            return row(shortAddress(n.id), `${n.transport}${live} · ${formatAgo(n.seenAt, now)}`);
+              ? ` · ${n.rssi} dBm`
+              : '';
+            return row(
+              shortAddress(n.id),
+              `${n.transport}${live} · ${formatAgo(n.seenAt, now)}`,
+            );
           })
         )}
       </Card>
@@ -97,16 +131,19 @@ export function StatusScreen() {
                 onValueChange={on => {
                   setAdvertiseNodeHash(on);
                   restartMesh().catch(e =>
-                    Alert.alert('Mesh restart failed', e instanceof Error ? e.message : String(e)),
+                    Alert.alert(
+                      'Mesh restart failed',
+                      e instanceof Error ? e.message : String(e),
+                    ),
                   );
                 }}
               />
             </View>
             <Text style={[styles.hint, { color: theme.muted }]}>
-              Android changes its Bluetooth address often, so iPhones lose track of which signal
-              is you. This adds a fixed tag to your Bluetooth broadcast so they can. The cost:
-              anyone scanning nearby can follow your phone by that tag. Turn it on at the event,
-              off after.
+              Android changes its Bluetooth address often, so iPhones lose track
+              of which signal is you. This adds a fixed tag to your Bluetooth
+              broadcast so they can. The cost: anyone scanning nearby can follow
+              your phone by that tag. Turn it on at the event, off after.
             </Text>
           </Card>
         </>
@@ -118,7 +155,10 @@ export function StatusScreen() {
         {runtime.position
           ? row(
               'Last fix',
-              `±${Math.round(runtime.position.acc)} m · ${formatAgo(runtime.position.ts, now)}`,
+              `±${Math.round(runtime.position.acc)} m · ${formatAgo(
+                runtime.position.ts,
+                now,
+              )}`,
             )
           : null}
         {row(
@@ -126,8 +166,8 @@ export function StatusScreen() {
           !runtime.headingAvailable
             ? 'not available'
             : runtime.heading
-              ? `${Math.round(runtime.heading.deg)}° · ${runtime.heading.quality}`
-              : 'starting',
+            ? `${Math.round(runtime.heading.deg)}° · ${runtime.heading.quality}`
+            : 'starting',
         )}
       </Card>
     </ScrollView>
@@ -145,7 +185,12 @@ const styles = StyleSheet.create({
   label: { fontSize: 14, fontWeight: '700' },
   value: { fontSize: 14, fontWeight: '700', flexShrink: 1, textAlign: 'right' },
   button: { marginTop: 12, alignSelf: 'flex-start' },
-  switchRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 },
+  switchRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 12,
+  },
   switchLabel: { flex: 1, fontSize: 15, fontWeight: '800' },
   hint: { marginTop: 8, fontSize: 13, lineHeight: 18 },
 });

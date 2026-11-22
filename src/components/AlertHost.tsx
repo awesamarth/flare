@@ -61,13 +61,13 @@ function Banner({ alert }: { alert: Alert }) {
           },
         ]}>
         <View style={styles.textBox}>
-          <Text style={[styles.title, { color: danger ? '#FFFFFF' : theme.text }]}>
+          <Text style={[styles.title, danger ? styles.onDanger : { color: theme.text }]}>
             {alert.title}
           </Text>
           {alert.body ? (
             <Text
               numberOfLines={2}
-              style={[styles.body, { color: danger ? '#FFFFFF' : theme.muted }]}>
+              style={[styles.body, danger ? styles.onDanger : { color: theme.muted }]}>
               {alert.body}
             </Text>
           ) : null}
@@ -77,7 +77,7 @@ function Banner({ alert }: { alert: Alert }) {
           accessibilityLabel="Dismiss"
           hitSlop={12}
           onPress={() => dismiss(alert.id)}>
-          <Text style={[styles.close, { color: danger ? '#FFFFFF' : theme.muted }]}>✕</Text>
+          <Text style={[styles.close, danger ? styles.onDanger : { color: theme.muted }]}>✕</Text>
         </Pressable>
       </Pressable>
     </View>
@@ -85,6 +85,7 @@ function Banner({ alert }: { alert: Alert }) {
 }
 
 const styles = StyleSheet.create({
+  onDanger: { color: '#FFFFFF' },
   wrap: {
     position: 'absolute',
     left: 12,

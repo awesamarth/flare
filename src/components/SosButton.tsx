@@ -69,11 +69,11 @@ export function SosButton({
         {
           borderColor: theme.danger,
           backgroundColor: pressed ? theme.danger : theme.dangerSoft,
-          opacity: disabled ? 0.5 : 1,
         },
+        disabled && styles.disabled,
       ]}>
       {({ pressed }) => (
-        <Text style={[styles.label, { color: pressed ? '#FFFFFF' : theme.danger }]}>
+        <Text style={[styles.label, pressed ? styles.onDanger : { color: theme.danger }]}>
           {pressed ? 'Hold…' : 'SOS'}
         </Text>
       )}
@@ -82,6 +82,8 @@ export function SosButton({
 }
 
 const styles = StyleSheet.create({
+  onDanger: { color: '#FFFFFF' },
+  disabled: { opacity: 0.5 },
   button: { minWidth: 88 },
   hold: {
     height: 50,

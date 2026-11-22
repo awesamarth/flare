@@ -83,8 +83,8 @@ export function Avatar({
           height: size,
           borderRadius: size / 2,
           backgroundColor: color,
-          opacity: dimmed ? 0.45 : 1,
         },
+        dimmed && styles.dimmed,
       ]}>
       <Text style={[styles.avatarText, { color: textOn(color), fontSize: size * 0.42 }]}>
         {(name ?? '?').slice(0, 1).toUpperCase()}
@@ -122,9 +122,9 @@ export function ColorPicker({
               styles.colorSwatch,
               {
                 backgroundColor: color,
-                borderColor: selected ? theme.text : 'transparent',
-                opacity: unavailable ? 0.2 : 1,
               },
+              selected && { borderColor: theme.text },
+              unavailable && styles.unavailable,
             ]}
           />
         );
@@ -173,6 +173,8 @@ export function Badge({ count }: { count: number }) {
 }
 
 const styles = StyleSheet.create({
+  dimmed: { opacity: 0.45 },
+  unavailable: { opacity: 0.2 },
   button: {
     minHeight: 50,
     paddingHorizontal: 20,
