@@ -34,7 +34,7 @@ import {
 import { useProfile } from '../state/profile';
 import { useRuntime } from '../state/runtime';
 import { MEMBER_COLORS } from '../theme';
-import { startBatteryReporting } from './battery';
+import { startBatteryReporting, stopBatteryReporting } from './battery';
 import {
   isEventMapDoc,
   loadAllEventMaps,
@@ -188,11 +188,20 @@ export function startMesh(): Promise<void> {
   return starting;
 }
 
-/** Tear down and start again, e.g. after a config setting changed. */
-export async function restartMesh(): Promise<void> {
+/** Stop the mesh and every timer it owns. */
+export async function stopMesh(): Promise<void> {
   if (starting) {
     await starting;
   }
+  if (syncTimer) {
+    clearInterval(syncTimer);
+    syncTimer = null;
+  }
+  for (const timer of announceTimers.values()) {
+    clearTimeout(timer);
+  }
+  announceTimers.clear();
+  stopBatteryReporting();
   const old = protocol;
   protocol = null;
   runtime().set({ meshStatus: 'idle', neighbors: {}, proximity: {} });
@@ -200,6 +209,11 @@ export async function restartMesh(): Promise<void> {
     await old.stop().catch(() => {});
     await old.destroy().catch(() => {});
   }
+}
+
+/** Tear down and start again, e.g. after a config setting changed. */
+export async function restartMesh(): Promise<void> {
+  await stopMesh();
   await startMesh();
 }
 
