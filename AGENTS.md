@@ -30,13 +30,16 @@ Flare is a React Native mobile app concept for offline friend finding at crowded
 - Stack: `react-native-nitro-geolocation` (GPS + compass), `react-native-data-scanner` (QR), `react-native-mmkv`, `react-native-svg`, `react-native-qrcode-svg`, React Navigation. No Expo.
 - Home is radar-first (active group). Groups list, group details, chat, find (Bluetooth hot/cold), meeting point (SDK DataStore), status screens.
 - Transports: BLE + Wi-Fi Direct (`autoAccept`, `fastLink: 'requestedOnly'`). `advertiseNodeHash` is an Android opt-in toggle on the Status screen (privacy cost).
-- Only tested on one Android phone (Nothing `eeb57179`). iOS has never been built. Multi-device flows (join, chat, location, rssi, meet sync) are untested.
-- Known gap: location is not shared while the app is backgrounded (needs a location foreground service / background permission).
+- Tested on one Android phone (Nothing `eeb57179`) and the iOS simulator (no Bluetooth/compass there). Multi-device flows (join, chat, location, rssi, meet/event-map sync, photos) are untested on real devices.
+- Background location ("pocket mode") uses the nitro-geolocation foreground service when "Allow all the time" is granted. Location sharing can be paused from Home (sends `loc_off`).
+- `FlareNative` (Android `FlareNativeModule.kt`, iOS `ios/Flare/FlareNative.m`): battery state for the SDK and writing images to private files for the map.
+- Mesh service tests in `__tests__/mesh.test.ts` mock the SDK; `__mocks__/` holds in-memory MMKV and notification mocks.
 
 ## Dev Workflow
 
 - Fast Android build: `cd android && ./gradlew assembleDebug -PreactNativeArchitectures=arm64-v8a`, or `bun run android` (active arch only).
-- iOS pods: `cd ios && bundle exec pod install`.
+- Standalone test APK (no Metro, arm64): `bun run android:apk` → `android/app/build/outputs/apk/release/app-release.apk`. Signed with the debug keystore: fine for sideloading, not for the Play Store.
+- iOS pods: `cd ios && bundle exec pod install`. Simulator build: `xcodebuild -workspace ios/Flare.xcworkspace -scheme Flare -sdk iphonesimulator -derivedDataPath ios/build/dd build`.
 - New files/screens may not hot-reload: force-stop and relaunch the app.
 - `adb reverse tcp:8081 tcp:8081` only after reconnects / "Unable to load script".
 - Screenshot: `adb exec-out screencap -p > screenshots/flare-current.png`.
