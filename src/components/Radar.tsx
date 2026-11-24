@@ -18,7 +18,9 @@ export type RadarMember = {
   sos: boolean;
 };
 
-const RANGES = [25, 50, 100, 250, 500, 1000, 2500, 5000, 10_000, 25_000, 100_000];
+const RANGES = [
+  25, 50, 100, 250, 500, 1000, 2500, 5000, 10_000, 25_000, 100_000,
+];
 const MARKER_R = 14;
 
 type Props = {
@@ -48,7 +50,10 @@ export function Radar({
   const rotation = heading ?? 0;
 
   const range = useMemo(() => {
-    const farthest = members.reduce((max, m) => Math.max(max, m.distance), meet?.distance ?? 0);
+    const farthest = members.reduce(
+      (max, m) => Math.max(max, m.distance),
+      meet?.distance ?? 0,
+    );
     return RANGES.find(r => r >= farthest * 1.15) ?? RANGES[RANGES.length - 1];
   }, [members, meet?.distance]);
 
@@ -77,7 +82,10 @@ export function Radar({
     ? (() => {
         const r = toPx(meet.distance);
         const angle = ((meet.bearing - rotation - 90) * Math.PI) / 180;
-        return { x: center + Math.cos(angle) * r, y: center + Math.sin(angle) * r };
+        return {
+          x: center + Math.cos(angle) * r,
+          y: center + Math.sin(angle) * r,
+        };
       })()
     : undefined;
 
@@ -87,7 +95,10 @@ export function Radar({
     y: center + Math.sin(northAngle) * (radius + 2),
   };
 
-  const rings = [0.25, 0.5, 1].map(f => ({ meters: range * f, r: toPx(range * f) }));
+  const rings = [0.25, 0.5, 1].map(f => ({
+    meters: range * f,
+    r: toPx(range * f),
+  }));
 
   return (
     <View style={{ width: size, height: size }}>
@@ -100,7 +111,13 @@ export function Radar({
           stroke={theme.border}
           strokeWidth={1}
         />
-        <Circle cx={center} cy={center} r={radius * 0.32} fill={theme.primary} opacity={0.06} />
+        <Circle
+          cx={center}
+          cy={center}
+          r={radius * 0.32}
+          fill={theme.primary}
+          opacity={0.06}
+        />
         {rings.map(ring => (
           <G key={ring.meters}>
             <Circle
@@ -116,7 +133,8 @@ export function Radar({
               y={center - ring.r * 0.707 - 4}
               fill={theme.faint}
               fontSize={10}
-              fontWeight="700">
+              fontWeight="700"
+            >
               {formatDistance(ring.meters)}
             </SvgText>
           </G>
@@ -143,14 +161,19 @@ export function Radar({
           fill={theme.primary}
           fontSize={13}
           fontWeight="900"
-          textAnchor="middle">
+          textAnchor="middle"
+        >
           N
         </SvgText>
 
         {meetPos ? (
           <G>
             <Path
-              d={`M ${meetPos.x} ${meetPos.y - 13} L ${meetPos.x + 13} ${meetPos.y} L ${meetPos.x} ${meetPos.y + 13} L ${meetPos.x - 13} ${meetPos.y} Z`}
+              d={`M ${meetPos.x} ${meetPos.y - 13} L ${meetPos.x + 13} ${
+                meetPos.y
+              } L ${meetPos.x} ${meetPos.y + 13} L ${meetPos.x - 13} ${
+                meetPos.y
+              } Z`}
               fill={theme.primary}
               stroke={theme.surface}
               strokeWidth={3}
@@ -162,7 +185,8 @@ export function Radar({
               fontSize={10}
               fontWeight="900"
               letterSpacing={1}
-              textAnchor="middle">
+              textAnchor="middle"
+            >
               MEET
             </SvgText>
           </G>
@@ -171,7 +195,13 @@ export function Radar({
         {placed.map(({ member, x, y, halo }) => (
           <G key={member.address} opacity={member.stale ? 0.45 : 1}>
             {halo > MARKER_R ? (
-              <Circle cx={x} cy={y} r={halo} fill={member.color} opacity={0.12} />
+              <Circle
+                cx={x}
+                cy={y}
+                r={halo}
+                fill={member.color}
+                opacity={0.12}
+              />
             ) : null}
             {member.sos ? (
               <Circle
@@ -197,7 +227,8 @@ export function Radar({
               fill={textOn(member.color)}
               fontSize={13}
               fontWeight="900"
-              textAnchor="middle">
+              textAnchor="middle"
+            >
               {member.name.slice(0, 1).toUpperCase()}
             </SvgText>
             {member.address === selected ? (
@@ -207,7 +238,8 @@ export function Radar({
                 fill={theme.text}
                 fontSize={12}
                 fontWeight="800"
-                textAnchor="middle">
+                textAnchor="middle"
+              >
                 {member.name}
               </SvgText>
             ) : null}
@@ -216,7 +248,9 @@ export function Radar({
 
         {heading !== undefined ? (
           <Path
-            d={`M ${center} ${center - 18} L ${center + 12} ${center + 13} L ${center} ${center + 6} L ${center - 12} ${center + 13} Z`}
+            d={`M ${center} ${center - 18} L ${center + 12} ${
+              center + 13
+            } L ${center} ${center + 6} L ${center - 12} ${center + 13} Z`}
             fill={theme.primary}
           />
         ) : (
@@ -236,7 +270,8 @@ export function Radar({
           fontSize={10}
           fontWeight="800"
           letterSpacing={1.2}
-          textAnchor="middle">
+          textAnchor="middle"
+        >
           YOU
         </SvgText>
       </Svg>
@@ -244,17 +279,24 @@ export function Radar({
       {meetPos && onSelectMeet ? (
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel={`Meeting point, ${formatDistance(meet?.distance ?? 0)}`}
+          accessibilityLabel={`Meeting point, ${formatDistance(
+            meet?.distance ?? 0,
+          )}`}
           onPress={onSelectMeet}
           hitSlop={8}
-          style={[styles.hit, { left: meetPos.x - MARKER_R - 6, top: meetPos.y - MARKER_R - 6 }]}
+          style={[
+            styles.hit,
+            { left: meetPos.x - MARKER_R - 6, top: meetPos.y - MARKER_R - 6 },
+          ]}
         />
       ) : null}
       {placed.map(({ member, x, y }) => (
         <Pressable
           key={member.address}
           accessibilityRole="button"
-          accessibilityLabel={`${member.name}, ${formatDistance(member.distance)}`}
+          accessibilityLabel={`${member.name}, ${formatDistance(
+            member.distance,
+          )}`}
           onPress={() => onSelect(member.address)}
           hitSlop={8}
           style={[

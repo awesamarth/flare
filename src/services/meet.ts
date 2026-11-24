@@ -37,7 +37,8 @@ function parse(raw: string): MeetPoint | null {
         label: v.label,
         when: typeof v.when === 'string' ? v.when.slice(0, 30) : undefined,
         by: v.by,
-        byName: typeof v.byName === 'string' ? v.byName.slice(0, 32) : undefined,
+        byName:
+          typeof v.byName === 'string' ? v.byName.slice(0, 32) : undefined,
         ts: Math.min(v.ts, Date.now()),
       };
     }
@@ -68,7 +69,11 @@ export async function loadAllMeets() {
 }
 
 /** Pin the meeting point where this phone is right now. */
-export async function setMeetHere(groupId: string, label: string, when?: string) {
+export async function setMeetHere(
+  groupId: string,
+  label: string,
+  when?: string,
+) {
   const position = useRuntime.getState().position;
   if (!position) {
     throw new Error('No GPS fix yet. Wait for location, then try again.');

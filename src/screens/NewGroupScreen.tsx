@@ -19,7 +19,10 @@ export function NewGroupScreen({ navigation }: ScreenProps<'NewGroup'>) {
       useGroups.getState().setActiveGroup(groupId);
       navigation.popTo('Home');
     } catch (error) {
-      Alert.alert("Couldn't create group", error instanceof Error ? error.message : String(error));
+      Alert.alert(
+        "Couldn't create group",
+        error instanceof Error ? error.message : String(error),
+      );
       setBusy(false);
     }
   };
@@ -38,12 +41,16 @@ export function NewGroupScreen({ navigation }: ScreenProps<'NewGroup'>) {
         onSubmitEditing={() => trimmed && !busy && create()}
         style={[
           styles.input,
-          { color: theme.text, backgroundColor: theme.surface, borderColor: theme.border },
+          {
+            color: theme.text,
+            backgroundColor: theme.surface,
+            borderColor: theme.border,
+          },
         ]}
       />
       <Text style={[styles.hint, { color: theme.faint }]}>
-        You'll be the admin. Friends join by scanning your group code, and you approve each one.
-        Messages and locations are end-to-end encrypted.
+        You'll be the admin. Friends join by scanning your group code, and you
+        approve each one. Messages and locations are end-to-end encrypted.
       </Text>
       <Button
         label="Create group"

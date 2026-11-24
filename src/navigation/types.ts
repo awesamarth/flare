@@ -17,9 +17,7 @@ export type RootStackParamList = {
   Map: { groupId?: string };
 };
 
-export type ScreenProps<T extends keyof RootStackParamList> = NativeStackScreenProps<
-  RootStackParamList,
-  T
->;
+export type ScreenProps<T extends keyof RootStackParamList> =
+  NativeStackScreenProps<RootStackParamList, T>;
 
 export const navigationRef = createNavigationContainerRef<RootStackParamList>();

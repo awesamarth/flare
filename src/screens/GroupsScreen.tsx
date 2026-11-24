@@ -1,5 +1,12 @@
 import React, { useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import {
+  Alert,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import { Avatar, Badge, Button, Card, SectionTitle } from '../components/ui';
 import { shortAddress } from '../lib/time';
 import type { ScreenProps } from '../navigation/types';
@@ -26,10 +33,15 @@ export function GroupsScreen({ navigation }: ScreenProps<'Groups'>) {
   const running = useRuntime(s => s.meshStatus === 'running');
   const [scanning, setScanning] = useState(false);
 
-  const groupList = Object.values(groups).sort((a, b) => b.createdAt - a.createdAt);
+  const groupList = Object.values(groups).sort(
+    (a, b) => b.createdAt - a.createdAt,
+  );
   const directList = Object.keys(conversations)
     .filter(c => c.startsWith('d:'))
-    .map(conv => ({ conv, last: conversations[conv]?.[conversations[conv].length - 1] }))
+    .map(conv => ({
+      conv,
+      last: conversations[conv]?.[conversations[conv].length - 1],
+    }))
     .filter(item => item.last)
     .sort((a, b) => (b.last?.ts ?? 0) - (a.last?.ts ?? 0));
 
@@ -54,10 +66,16 @@ export function GroupsScreen({ navigation }: ScreenProps<'Groups'>) {
       } else if (outcome.kind === 'already_member') {
         showOnRadar(outcome.groupId);
       } else if (outcome.kind === 'person') {
-        navigation.navigate('Person', { address: outcome.address, name: outcome.name });
+        navigation.navigate('Person', {
+          address: outcome.address,
+          name: outcome.name,
+        });
       }
     } catch (error) {
-      Alert.alert('Scan failed', error instanceof Error ? error.message : String(error));
+      Alert.alert(
+        'Scan failed',
+        error instanceof Error ? error.message : String(error),
+      );
     } finally {
       setScanning(false);
     }
@@ -66,15 +84,21 @@ export function GroupsScreen({ navigation }: ScreenProps<'Groups'>) {
   return (
     <ScrollView
       style={{ backgroundColor: theme.background }}
-      contentContainerStyle={styles.content}>
+      contentContainerStyle={styles.content}
+    >
       <Pressable
         accessibilityRole="button"
-        onPress={() => navigation.navigate('Onboarding', { edit: true })}>
+        onPress={() => navigation.navigate('Onboarding', { edit: true })}
+      >
         <Card style={styles.row}>
           <Avatar name={profile.name ?? '?'} color={profile.color} size={44} />
           <View style={[styles.flex, styles.gap]}>
-            <Text style={[styles.title, { color: theme.text }]}>{profile.name}</Text>
-            <Text style={[styles.sub, { color: theme.muted }]}>Edit name and color</Text>
+            <Text style={[styles.title, { color: theme.text }]}>
+              {profile.name}
+            </Text>
+            <Text style={[styles.sub, { color: theme.muted }]}>
+              Edit name and color
+            </Text>
           </View>
         </Card>
       </Pressable>
@@ -105,7 +129,8 @@ export function GroupsScreen({ navigation }: ScreenProps<'Groups'>) {
       {Object.values(pendingJoins).map(join => (
         <Card key={join.groupId} style={styles.block}>
           <Text style={[styles.title, { color: theme.text }]}>
-            {join.status === 'rejected' ? 'Declined:' : 'Waiting to join'} {join.groupName}
+            {join.status === 'rejected' ? 'Declined:' : 'Waiting to join'}{' '}
+            {join.groupName}
           </Text>
           <Text style={[styles.sub, { color: theme.muted }]}>
             {join.status === 'rejected'
@@ -125,7 +150,9 @@ export function GroupsScreen({ navigation }: ScreenProps<'Groups'>) {
       <View style={styles.block}>
         <SectionTitle>Groups</SectionTitle>
         {groupList.length === 0 ? (
-          <Text style={[styles.sub, { color: theme.muted }]}>No groups yet.</Text>
+          <Text style={[styles.sub, { color: theme.muted }]}>
+            No groups yet.
+          </Text>
         ) : (
           groupList.map(group => {
             const conv = groupConv(group.id);
@@ -136,18 +163,29 @@ export function GroupsScreen({ navigation }: ScreenProps<'Groups'>) {
               <Pressable
                 key={group.id}
                 accessibilityRole="button"
-                onPress={() => showOnRadar(group.id)}>
+                onPress={() => showOnRadar(group.id)}
+              >
                 <Card
                   style={[
                     styles.row,
                     styles.item,
                     active && { borderColor: theme.primary },
                     sos && { borderColor: theme.danger },
-                  ]}>
+                  ]}
+                >
                   <View style={styles.flex}>
-                    <Text style={[styles.title, { color: theme.text }]}>{group.name}</Text>
-                    <Text style={[styles.sub, { color: sos ? theme.danger : theme.muted }]}>
-                      {sos ? 'Someone needs help' : `${people} ${people === 1 ? 'person' : 'people'}`}
+                    <Text style={[styles.title, { color: theme.text }]}>
+                      {group.name}
+                    </Text>
+                    <Text
+                      style={[
+                        styles.sub,
+                        { color: sos ? theme.danger : theme.muted },
+                      ]}
+                    >
+                      {sos
+                        ? 'Someone needs help'
+                        : `${people} ${people === 1 ? 'person' : 'people'}`}
                       {active ? ' · on radar' : ''}
                     </Text>
                   </View>
@@ -170,12 +208,24 @@ export function GroupsScreen({ navigation }: ScreenProps<'Groups'>) {
               <Pressable
                 key={conv}
                 accessibilityRole="button"
-                onPress={() => navigation.navigate('Chat', { conv: conv as ConversationId })}>
+                onPress={() =>
+                  navigation.navigate('Chat', { conv: conv as ConversationId })
+                }
+              >
                 <Card style={[styles.row, styles.item]}>
-                  <Avatar name={name} color={peer?.color ?? theme.faint} size={36} />
+                  <Avatar
+                    name={name}
+                    color={peer?.color ?? theme.faint}
+                    size={36}
+                  />
                   <View style={[styles.flex, styles.gap]}>
-                    <Text style={[styles.title, { color: theme.text }]}>{name}</Text>
-                    <Text style={[styles.sub, { color: theme.muted }]} numberOfLines={1}>
+                    <Text style={[styles.title, { color: theme.text }]}>
+                      {name}
+                    </Text>
+                    <Text
+                      style={[styles.sub, { color: theme.muted }]}
+                      numberOfLines={1}
+                    >
                       {last?.text}
                     </Text>
                   </View>

@@ -44,12 +44,20 @@ export function encodePhotoCaption(caption: PhotoCaption): string {
   return JSON.stringify({ v: WIRE_VERSION, s: 'p', ...caption });
 }
 
-export function decodePhotoCaption(content: string | undefined): PhotoCaption | null {
+export function decodePhotoCaption(
+  content: string | undefined,
+): PhotoCaption | null {
   if (!content) {
     return null;
   }
   const raw = parse(content);
-  if (!raw || raw.v !== WIRE_VERSION || raw.s !== 'p' || !isNum(raw.ts) || !isStr(raw.id, 64)) {
+  if (
+    !raw ||
+    raw.v !== WIRE_VERSION ||
+    raw.s !== 'p' ||
+    !isNum(raw.ts) ||
+    !isStr(raw.id, 64)
+  ) {
     return null;
   }
   return { id: raw.id, g: isStr(raw.g, 256) ? raw.g : undefined, ts: raw.ts };
@@ -168,7 +176,9 @@ export function decodeDirect(content: string): DirectPayload | null {
     case 'ping':
       return isStr(raw.id, 64) ? { k: 'ping', id: raw.id, ts } : null;
     case 'join_req':
-      return isStr(raw.g, 256) && isStr(raw.name, MAX_NAME) && isColor(raw.color)
+      return isStr(raw.g, 256) &&
+        isStr(raw.name, MAX_NAME) &&
+        isColor(raw.color)
         ? { k: 'join_req', g: raw.g, name: raw.name, color: raw.color, ts }
         : null;
     case 'join_res':

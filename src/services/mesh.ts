@@ -101,7 +101,9 @@ function reportBattery(level: number, charging: boolean) {
   if (protocol && isMeshRunning()) {
     protocol
       .setBatteryState(Math.round(Math.min(100, Math.max(0, level))), charging)
-      .then(() => runtime().set({ battery: { level, charging, at: Date.now() } }))
+      .then(() =>
+        runtime().set({ battery: { level, charging, at: Date.now() } }),
+      )
       .catch(() => {});
   }
 }
@@ -147,7 +149,9 @@ export function startMesh(): Promise<void> {
     if (Platform.OS === 'android') {
       const enabled = await protocol.isBluetoothEnabled().catch(() => true);
       if (!enabled) {
-        const turnedOn = await protocol.requestEnableBluetooth().catch(() => false);
+        const turnedOn = await protocol
+          .requestEnableBluetooth()
+          .catch(() => false);
         if (!turnedOn) {
           runtime().set({ meshStatus: 'bluetooth_off' });
           return;
@@ -203,7 +207,10 @@ export async function restartMesh(): Promise<void> {
 // Event handling
 // ---------------------------------------------------------------------------
 
-type EventOf<K extends ProtocolEvent['type']> = Extract<ProtocolEvent, { type: K }>;
+type EventOf<K extends ProtocolEvent['type']> = Extract<
+  ProtocolEvent,
+  { type: K }
+>;
 
 function on<K extends ProtocolEvent['type']>(
   p: OfflineProtocol,
@@ -269,7 +276,10 @@ function attachListeners(p: OfflineProtocol) {
     onAttachmentUnavailable(event.space_id, event.hash),
   );
   on(p, 'data_doc_removed', event => {
-    if (event.doc_id === MEET_DOC && useGroups.getState().groups[event.space_id]) {
+    if (
+      event.doc_id === MEET_DOC &&
+      useGroups.getState().groups[event.space_id]
+    ) {
       useGroups.getState().upsertGroup({ id: event.space_id, meet: null });
     }
   });
@@ -297,7 +307,9 @@ function attachListeners(p: OfflineProtocol) {
     );
   });
   on(p, 'group_renamed', event =>
-    useGroups.getState().upsertGroup({ id: event.group_id, name: event.new_name }),
+    useGroups
+      .getState()
+      .upsertGroup({ id: event.group_id, name: event.new_name }),
   );
 
   on(p, 'message_delivered', event =>
@@ -309,10 +321,16 @@ function attachListeners(p: OfflineProtocol) {
   on(p, 'message_undeliverable', event =>
     useMessages.getState().onMeshFailed(event.message_id),
   );
-  on(p, 'media_send_failed', event => useMessages.getState().onMeshFailed(event.file_id));
+  on(p, 'media_send_failed', event =>
+    useMessages.getState().onMeshFailed(event.file_id),
+  );
   on(p, 'file_received', event => {
     const sender = event.sender;
-    if (!sender || sender === me() || !event.content_type?.startsWith('image')) {
+    if (
+      !sender ||
+      sender === me() ||
+      !event.content_type?.startsWith('image')
+    ) {
       return;
     }
     const caption = decodePhotoCaption(event.caption);
@@ -340,7 +358,12 @@ function attachListeners(p: OfflineProtocol) {
       activeConversation !== conv,
     );
     if (activeConversation !== conv) {
-      alert(`${nameFor(sender, groupId)} sent a photo`, '', 'info', groupId ? { groupId } : { address: sender });
+      alert(
+        `${nameFor(sender, groupId)} sent a photo`,
+        '',
+        'info',
+        groupId ? { groupId } : { address: sender },
+      );
     }
   });
 }
@@ -373,7 +396,9 @@ function nameFor(address: string, groupId?: string): string {
       return name;
     }
   }
-  return useMessages.getState().directPeers[address]?.name ?? shortAddress(address);
+  return (
+    useMessages.getState().directPeers[address]?.name ?? shortAddress(address)
+  );
 }
 
 async function handleGroupMessage(event: GroupMessageReceivedEvent) {
@@ -465,14 +490,18 @@ async function handleGroupMessage(event: GroupMessageReceivedEvent) {
           ts: clampTs(payload.ts),
           loc: payload.loc,
         },
-        ...(payload.loc ? { loc: { ...payload.loc, ts: clampTs(payload.loc.ts) } } : {}),
+        ...(payload.loc
+          ? { loc: { ...payload.loc, ts: clampTs(payload.loc.ts) } }
+          : {}),
       });
       messages.add(
         conv,
         {
           id: `${sender}:${payload.id}:${payload.active ? 'on' : 'off'}`,
           from: sender,
-          text: payload.active ? `${name} needs help (SOS)` : `${name} is OK now`,
+          text: payload.active
+            ? `${name} needs help (SOS)`
+            : `${name} is OK now`,
           ts: clampTs(payload.ts),
           mine: false,
           kind: 'sos',
@@ -533,7 +562,10 @@ async function handleDirectMessage(event: MessageReceivedEvent) {
       if (!group || !group.isAdmin || group.members[sender]) {
         return;
       }
-      messages.setDirectPeer(sender, { name: payload.name, color: payload.color });
+      messages.setDirectPeer(sender, {
+        name: payload.name,
+        color: payload.color,
+      });
       groups.addJoinRequest(payload.g, {
         address: sender,
         name: payload.name,
@@ -594,7 +626,12 @@ async function refreshGroup(groupId: string, nameHint?: string) {
 
   groups.upsertGroup({
     id: groupId,
-    name: info.groupName || existing?.name || pending?.groupName || nameHint || 'Group',
+    name:
+      info.groupName ||
+      existing?.name ||
+      pending?.groupName ||
+      nameHint ||
+      'Group',
     ...(existing
       ? {}
       : {
@@ -607,9 +644,14 @@ async function refreshGroup(groupId: string, nameHint?: string) {
   groups.syncMembers(groupId, info.memberIds, self);
 
   if (self) {
-    const role = await protocol.meshGetMemberRole(groupId, self).catch(() => null);
+    const role = await protocol
+      .meshGetMemberRole(groupId, self)
+      .catch(() => null);
     if (role) {
-      groups.upsertGroup({ id: groupId, isAdmin: role.toLowerCase() === 'admin' });
+      groups.upsertGroup({
+        id: groupId,
+        isAdmin: role.toLowerCase() === 'admin',
+      });
     }
   }
 
@@ -617,9 +659,14 @@ async function refreshGroup(groupId: string, nameHint?: string) {
     if (pending) {
       groups.removePendingJoin(groupId);
     }
-    alert(`You're in ${info.groupName || pending?.groupName || 'the group'}`, '', 'info', {
-      groupId,
-    });
+    alert(
+      `You're in ${info.groupName || pending?.groupName || 'the group'}`,
+      '',
+      'info',
+      {
+        groupId,
+      },
+    );
     scheduleAnnounce(groupId);
     return;
   }
@@ -757,13 +804,19 @@ export async function groupInviteLink(groupId: string): Promise<string> {
   if (!group) {
     throw new Error('Unknown group.');
   }
-  const invite = await p.createInvite(useProfile.getState().name ?? undefined, false);
+  const invite = await p.createInvite(
+    useProfile.getState().name ?? undefined,
+    false,
+  );
   return buildGroupLink(groupId, group.name, invite);
 }
 
 export async function personalLink(): Promise<string> {
   const p = requireProtocol();
-  const invite = await p.createInvite(useProfile.getState().name ?? undefined, false);
+  const invite = await p.createInvite(
+    useProfile.getState().name ?? undefined,
+    false,
+  );
   return buildPersonLink(invite);
 }
 
@@ -832,13 +885,19 @@ export async function handleScan(
   return { kind: 'join_requested', groupName: link.groupName };
 }
 
-export async function addMember(groupId: string, address: string, name?: string) {
+export async function addMember(
+  groupId: string,
+  address: string,
+  name?: string,
+) {
   const p = requireProtocol();
   try {
     await p.meshInviteToGroup(groupId, address);
   } catch (error) {
     throw new Error(
-      `Couldn't add them yet. Make sure they're nearby with Flare open, then try again. (${errorMessage(error)})`,
+      `Couldn't add them yet. Make sure they're nearby with Flare open, then try again. (${errorMessage(
+        error,
+      )})`,
     );
   }
   const groups = useGroups.getState();
@@ -865,14 +924,23 @@ export async function declineJoin(groupId: string, address: string) {
     await p
       .sendMessage({
         recipient: address,
-        content: encodeDirect({ k: 'join_res', g: groupId, ok: false, ts: Date.now() }),
+        content: encodeDirect({
+          k: 'join_res',
+          g: groupId,
+          ok: false,
+          ts: Date.now(),
+        }),
         priority: MessagePriority.Medium,
       })
       .catch(() => {});
   }
 }
 
-export async function sendChat(conv: ConversationId, text: string, retryId?: string) {
+export async function sendChat(
+  conv: ConversationId,
+  text: string,
+  retryId?: string,
+) {
   const body = text.trim();
   if (!body) {
     return;
@@ -885,7 +953,15 @@ export async function sendChat(conv: ConversationId, text: string, retryId?: str
   } else {
     messages.add(
       conv,
-      { id, from: me() ?? '', text: body, ts, mine: true, kind: 'chat', status: 'sending' },
+      {
+        id,
+        from: me() ?? '',
+        text: body,
+        ts,
+        mine: true,
+        kind: 'chat',
+        status: 'sending',
+      },
       false,
     );
   }
@@ -1006,11 +1082,20 @@ export async function sendPing(groupId: string, to?: string) {
     'high',
   );
   const name = to ? nameFor(to, groupId) : 'everyone';
-  useMessages.getState().add(
-    groupConv(groupId),
-    { id, from: me() ?? '', text: `You pinged ${name}`, ts: Date.now(), mine: true, kind: 'ping' },
-    false,
-  );
+  useMessages
+    .getState()
+    .add(
+      groupConv(groupId),
+      {
+        id,
+        from: me() ?? '',
+        text: `You pinged ${name}`,
+        ts: Date.now(),
+        mine: true,
+        kind: 'ping',
+      },
+      false,
+    );
 }
 
 export async function sendSos(groupId: string, active: boolean) {
@@ -1018,7 +1103,13 @@ export async function sendSos(groupId: string, active: boolean) {
   const id = makeId();
   await p.meshSendGroupMessage(
     groupId,
-    encodeGroup({ k: 'sos', id, active, loc: runtime().position, ts: Date.now() }),
+    encodeGroup({
+      k: 'sos',
+      id,
+      active,
+      loc: runtime().position,
+      ts: Date.now(),
+    }),
     'critical',
   );
   useGroups.getState().upsertGroup({ id: groupId, mySos: active });

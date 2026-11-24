@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useState,
+} from 'react';
 import {
   Alert,
   FlatList,
@@ -14,7 +20,11 @@ import {
 } from 'react-native';
 import { useHeaderHeight } from '@react-navigation/elements';
 import { useFocusEffect } from '@react-navigation/native';
-import { launchCamera, launchImageLibrary, type ImagePickerResponse } from 'react-native-image-picker';
+import {
+  launchCamera,
+  launchImageLibrary,
+  type ImagePickerResponse,
+} from 'react-native-image-picker';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { getMedia } from '../lib/media';
 import { formatClock, shortAddress } from '../lib/time';
@@ -36,7 +46,9 @@ export function ChatScreen({ navigation, route }: ScreenProps<'Chat'>) {
   const target = conv.slice(2);
 
   const messages = useMessages(s => s.conversations[conv] ?? EMPTY);
-  const directPeer = useMessages(s => (isGroup ? undefined : s.directPeers[target]));
+  const directPeer = useMessages(s =>
+    isGroup ? undefined : s.directPeers[target],
+  );
   const group = useGroups(s => (isGroup ? s.groups[target] : undefined));
   const knownMember = useGroups(s => {
     if (isGroup) {
@@ -76,14 +88,24 @@ export function ChatScreen({ navigation, route }: ScreenProps<'Chat'>) {
         width: asset.width,
         height: asset.height,
       }).catch(e =>
-        Alert.alert("Photo didn't send", e instanceof Error ? e.message : String(e)),
+        Alert.alert(
+          "Photo didn't send",
+          e instanceof Error ? e.message : String(e),
+        ),
       );
     };
-    Alert.alert('Send a photo', 'It may take a while if you are only connected over Bluetooth.', [
-      { text: 'Camera', onPress: () => launchCamera(options).then(handle) },
-      { text: 'Gallery', onPress: () => launchImageLibrary(options).then(handle) },
-      { text: 'Cancel', style: 'cancel' },
-    ]);
+    Alert.alert(
+      'Send a photo',
+      'It may take a while if you are only connected over Bluetooth.',
+      [
+        { text: 'Camera', onPress: () => launchCamera(options).then(handle) },
+        {
+          text: 'Gallery',
+          onPress: () => launchImageLibrary(options).then(handle),
+        },
+        { text: 'Cancel', style: 'cancel' },
+      ],
+    );
   };
 
   const title = isGroup
@@ -129,7 +151,8 @@ export function ChatScreen({ navigation, route }: ScreenProps<'Chat'>) {
     <KeyboardAvoidingView
       style={[styles.flex, { backgroundColor: theme.background }]}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      keyboardVerticalOffset={headerHeight}>
+      keyboardVerticalOffset={headerHeight}
+    >
       <FlatList
         data={inverted}
         inverted
@@ -171,7 +194,8 @@ export function ChatScreen({ navigation, route }: ScreenProps<'Chat'>) {
             borderColor: theme.border,
             backgroundColor: theme.background,
           },
-        ]}>
+        ]}
+      >
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Send a photo"
@@ -181,7 +205,8 @@ export function ChatScreen({ navigation, route }: ScreenProps<'Chat'>) {
             styles.attach,
             { borderColor: theme.border, backgroundColor: theme.surface },
             !meshRunning && styles.dim,
-          ]}>
+          ]}
+        >
           <Text style={[styles.attachText, { color: theme.primary }]}>+</Text>
         </Pressable>
         <TextInput
@@ -193,7 +218,11 @@ export function ChatScreen({ navigation, route }: ScreenProps<'Chat'>) {
           maxLength={2000}
           style={[
             styles.input,
-            { color: theme.text, backgroundColor: theme.surface, borderColor: theme.border },
+            {
+              color: theme.text,
+              backgroundColor: theme.surface,
+              borderColor: theme.border,
+            },
           ]}
         />
         <Pressable
@@ -205,14 +234,26 @@ export function ChatScreen({ navigation, route }: ScreenProps<'Chat'>) {
             styles.send,
             { backgroundColor: theme.primary },
             !draft.trim() && styles.dim,
-          ]}>
-          <Text style={[styles.sendText, { color: theme.onPrimary }]}>Send</Text>
+          ]}
+        >
+          <Text style={[styles.sendText, { color: theme.onPrimary }]}>
+            Send
+          </Text>
         </Pressable>
       </View>
-      <Modal visible={!!viewing} transparent animationType="fade" onRequestClose={() => setViewing(null)}>
+      <Modal
+        visible={!!viewing}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setViewing(null)}
+      >
         <Pressable style={styles.viewer} onPress={() => setViewing(null)}>
           {viewing ? (
-            <Image source={{ uri: viewing }} style={styles.viewerImage} resizeMode="contain" />
+            <Image
+              source={{ uri: viewing }}
+              style={styles.viewerImage}
+              resizeMode="contain"
+            />
           ) : null}
         </Pressable>
       </Modal>
@@ -259,34 +300,53 @@ function MessageRow({
     const ratio =
       message.width && message.height ? message.width / message.height : 4 / 3;
     return (
-      <View style={[styles.messageWrap, message.mine ? styles.mine : styles.theirs]}>
+      <View
+        style={[styles.messageWrap, message.mine ? styles.mine : styles.theirs]}
+      >
         {showSender && sender ? (
-          <Text style={[styles.sender, { color: sender.color }]}>{sender.name}</Text>
+          <Text style={[styles.sender, { color: sender.color }]}>
+            {sender.name}
+          </Text>
         ) : null}
         {uri ? (
           <Pressable onPress={() => onOpenPhoto(uri)}>
             <Image
               source={{ uri }}
-              style={[styles.photo, { aspectRatio: Math.min(2, Math.max(0.5, ratio)) }]}
+              style={[
+                styles.photo,
+                { aspectRatio: Math.min(2, Math.max(0.5, ratio)) },
+              ]}
             />
           </Pressable>
         ) : (
-          <View style={[styles.photo, styles.photoGone, { backgroundColor: theme.surface }]}>
-            <Text style={{ color: theme.faint }}>Photo no longer on this phone</Text>
+          <View
+            style={[
+              styles.photo,
+              styles.photoGone,
+              { backgroundColor: theme.surface },
+            ]}
+          >
+            <Text style={{ color: theme.faint }}>
+              Photo no longer on this phone
+            </Text>
           </View>
         )}
         <Text
-          style={[styles.meta, { color: message.status === 'failed' ? theme.danger : theme.faint }]}>
+          style={[
+            styles.meta,
+            { color: message.status === 'failed' ? theme.danger : theme.faint },
+          ]}
+        >
           {formatClock(message.ts)}
           {message.mine && message.status
             ? ` · ${
                 message.status === 'failed'
                   ? 'Not sent'
                   : message.status === 'nobody'
-                    ? 'No one else in this group yet'
-                    : message.status === 'sending'
-                      ? 'Sending…'
-                      : 'Sent'
+                  ? 'No one else in this group yet'
+                  : message.status === 'sending'
+                  ? 'Sending…'
+                  : 'Sent'
               }`
             : ''}
         </Text>
@@ -304,7 +364,8 @@ function MessageRow({
               color: danger ? theme.danger : theme.muted,
               backgroundColor: danger ? theme.dangerSoft : theme.surface,
             },
-          ]}>
+          ]}
+        >
           {message.text} · {formatClock(message.ts)}
         </Text>
       </View>
@@ -315,7 +376,9 @@ function MessageRow({
   return (
     <View style={[styles.messageWrap, mine ? styles.mine : styles.theirs]}>
       {showSender && sender ? (
-        <Text style={[styles.sender, { color: sender.color }]}>{sender.name}</Text>
+        <Text style={[styles.sender, { color: sender.color }]}>
+          {sender.name}
+        </Text>
       ) : null}
       <Pressable
         disabled={message.status !== 'failed'}
@@ -324,9 +387,18 @@ function MessageRow({
           styles.bubble,
           mine
             ? { backgroundColor: theme.primary }
-            : [styles.bubbleTheirs, { backgroundColor: theme.surface, borderColor: theme.border }],
-        ]}>
-        <Text style={[styles.body, { color: mine ? textOn(theme.primary) : theme.text }]}>
+            : [
+                styles.bubbleTheirs,
+                { backgroundColor: theme.surface, borderColor: theme.border },
+              ],
+        ]}
+      >
+        <Text
+          style={[
+            styles.body,
+            { color: mine ? textOn(theme.primary) : theme.text },
+          ]}
+        >
           {message.text}
         </Text>
       </Pressable>
@@ -334,7 +406,8 @@ function MessageRow({
         style={[
           styles.meta,
           { color: message.status === 'failed' ? theme.danger : theme.faint },
-        ]}>
+        ]}
+      >
         {formatClock(message.ts)}
         {mine && message.status ? ` · ${statusLabel(message)}` : ''}
       </Text>
@@ -352,7 +425,12 @@ const styles = StyleSheet.create({
     marginHorizontal: 24,
     transform: [{ scaleY: -1 }],
   },
-  offline: { textAlign: 'center', fontSize: 13, fontWeight: '700', paddingVertical: 6 },
+  offline: {
+    textAlign: 'center',
+    fontSize: 13,
+    fontWeight: '700',
+    paddingVertical: 6,
+  },
   composer: {
     flexDirection: 'row',
     alignItems: 'flex-end',
@@ -393,7 +471,11 @@ const styles = StyleSheet.create({
   dim: { opacity: 0.4 },
   photo: { width: 240, borderRadius: 16 },
   photoGone: { height: 120, alignItems: 'center', justifyContent: 'center' },
-  viewer: { flex: 1, backgroundColor: 'rgba(0,0,0,0.92)', justifyContent: 'center' },
+  viewer: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.92)',
+    justifyContent: 'center',
+  },
   viewerImage: { width: '100%', height: '100%' },
   messageWrap: { marginVertical: 4, maxWidth: '82%' },
   mine: { alignSelf: 'flex-end', alignItems: 'flex-end' },

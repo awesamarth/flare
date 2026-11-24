@@ -23,7 +23,10 @@ import { OnboardingScreen } from './screens/OnboardingScreen';
 import { PersonScreen } from './screens/PersonScreen';
 import { ShareCodeScreen } from './screens/ShareCodeScreen';
 import { StatusScreen } from './screens/StatusScreen';
-import { refreshBackgroundPermission, startLocation } from './services/location';
+import {
+  refreshBackgroundPermission,
+  startLocation,
+} from './services/location';
 import { startMesh } from './services/mesh';
 import { setupNotifications } from './services/notify';
 import { useGroups } from './state/groups';
@@ -67,7 +70,11 @@ function useServices(enabled: boolean) {
       }
       refreshBackgroundPermission().catch(() => {});
       const status = useRuntime.getState().meshStatus;
-      if (status === 'bluetooth_off' || status === 'permission_denied' || status === 'error') {
+      if (
+        status === 'bluetooth_off' ||
+        status === 'permission_denied' ||
+        status === 'error'
+      ) {
         boot();
       }
     });
@@ -105,7 +112,8 @@ export default function App() {
             headerShadowVisible: false,
             headerBackButtonDisplayMode: 'minimal',
             headerTitleStyle: { fontWeight: '800' },
-          }}>
+          }}
+        >
           <Stack.Screen
             name="Onboarding"
             component={OnboardingScreen}
@@ -114,8 +122,16 @@ export default function App() {
               title: 'Profile',
             })}
           />
-          <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
-          <Stack.Screen name="Groups" component={GroupsScreen} options={{ title: 'Groups' }} />
+          <Stack.Screen
+            name="Home"
+            component={HomeScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="Groups"
+            component={GroupsScreen}
+            options={{ title: 'Groups' }}
+          />
           <Stack.Screen
             name="NewGroup"
             component={NewGroupScreen}
@@ -128,7 +144,11 @@ export default function App() {
           <Stack.Screen name="Find" component={FindScreen} />
           <Stack.Screen name="Meet" component={MeetScreen} />
           <Stack.Screen name="Map" component={MapScreen} />
-          <Stack.Screen name="Status" component={StatusScreen} options={{ title: 'Status' }} />
+          <Stack.Screen
+            name="Status"
+            component={StatusScreen}
+            options={{ title: 'Status' }}
+          />
         </Stack.Navigator>
       </NavigationContainer>
       <AlertHost />

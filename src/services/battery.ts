@@ -11,7 +11,9 @@ let appStateSub: NativeEventSubscription | null = null;
  * SDK uses it to pick relays and transports: a low phone stops carrying
  * other people's traffic. Without it those policies run blind.
  */
-export function startBatteryReporting(report: (level: number, charging: boolean) => void) {
+export function startBatteryReporting(
+  report: (level: number, charging: boolean) => void,
+) {
   const battery = native;
   if (!battery || timer) {
     return;

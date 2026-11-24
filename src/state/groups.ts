@@ -95,7 +95,11 @@ type GroupsState = {
   upsertGroup: (group: Partial<Group> & Pick<Group, 'id'>) => void;
   removeGroup: (groupId: string) => void;
   /** Reconcile membership with the SDK's member list. */
-  syncMembers: (groupId: string, addresses: string[], me: string | null) => void;
+  syncMembers: (
+    groupId: string,
+    addresses: string[],
+    me: string | null,
+  ) => void;
   updateMember: (
     groupId: string,
     address: string,
@@ -105,7 +109,10 @@ type GroupsState = {
   addJoinRequest: (groupId: string, request: JoinRequest) => void;
   removeJoinRequest: (groupId: string, address: string) => void;
   addPendingJoin: (join: PendingJoin) => void;
-  setPendingJoinStatus: (groupId: string, status: PendingJoin['status']) => void;
+  setPendingJoinStatus: (
+    groupId: string,
+    status: PendingJoin['status'],
+  ) => void;
   removePendingJoin: (groupId: string) => void;
 };
 
@@ -139,7 +146,8 @@ export const useGroups = create<GroupsState>()(
         set(state => {
           return {
             groups: omitKey(state.groups, groupId),
-            activeGroupId: state.activeGroupId === groupId ? null : state.activeGroupId,
+            activeGroupId:
+              state.activeGroupId === groupId ? null : state.activeGroupId,
           };
         }),
 
@@ -223,7 +231,10 @@ export const useGroups = create<GroupsState>()(
           return {
             groups: {
               ...state.groups,
-              [groupId]: { ...group, joinRequests: omitKey(group.joinRequests, address) },
+              [groupId]: {
+                ...group,
+                joinRequests: omitKey(group.joinRequests, address),
+              },
             },
           };
         }),

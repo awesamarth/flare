@@ -37,9 +37,14 @@ export function initMaps() {
 }
 
 /** Square box of `radius` meters around a point. */
-export function boundsAround(lat: number, lon: number, radius: number): LngLatBounds {
+export function boundsAround(
+  lat: number,
+  lon: number,
+  radius: number,
+): LngLatBounds {
   const dLat = radius / 111_320;
-  const dLon = radius / (111_320 * Math.max(0.01, Math.cos((lat * Math.PI) / 180)));
+  const dLon =
+    radius / (111_320 * Math.max(0.01, Math.cos((lat * Math.PI) / 180)));
   return [lon - dLon, lat - dLat, lon + dLon, lat + dLat];
 }
 
@@ -49,10 +54,16 @@ function tileX(lon: number, z: number) {
 
 function tileY(lat: number, z: number) {
   const r = (lat * Math.PI) / 180;
-  return Math.floor(((1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2) * 2 ** z);
+  return Math.floor(
+    ((1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2) * 2 ** z,
+  );
 }
 
-export function countTiles([west, south, east, north]: LngLatBounds, minZ: number, maxZ: number) {
+export function countTiles(
+  [west, south, east, north]: LngLatBounds,
+  minZ: number,
+  maxZ: number,
+) {
   let total = 0;
   for (let z = minZ; z <= maxZ; z++) {
     const xs = tileX(east, z) - tileX(west, z) + 1;
@@ -78,8 +89,14 @@ async function toSaved(pack: OfflinePack): Promise<SavedArea> {
     complete: status?.state === 'complete' || (status?.percentage ?? 0) >= 100,
     percentage: status?.percentage ?? 0,
     id: pack.id,
-    name: typeof pack.metadata?.name === 'string' ? pack.metadata.name : 'Saved area',
-    createdAt: typeof pack.metadata?.createdAt === 'number' ? pack.metadata.createdAt : 0,
+    name:
+      typeof pack.metadata?.name === 'string'
+        ? pack.metadata.name
+        : 'Saved area',
+    createdAt:
+      typeof pack.metadata?.createdAt === 'number'
+        ? pack.metadata.createdAt
+        : 0,
     bounds: pack.bounds,
   };
 }
@@ -121,7 +138,9 @@ export async function resumeSavedArea(
       lastPercentage = status.percentage;
       lastMovedAt = Date.now();
     } else if (Date.now() - lastMovedAt > STALL_MS) {
-      throw new Error('The download stopped moving. Check your connection and try again.');
+      throw new Error(
+        'The download stopped moving. Check your connection and try again.',
+      );
     }
   }
 }
@@ -140,7 +159,10 @@ export async function saveAreaOffline(
   initMaps();
   const bounds = boundsAround(lat, lon, radius);
   let maxZoom = MAX_ZOOM;
-  while (maxZoom > MIN_ZOOM && countTiles(bounds, MIN_ZOOM, maxZoom) > MAX_TILES) {
+  while (
+    maxZoom > MIN_ZOOM &&
+    countTiles(bounds, MIN_ZOOM, maxZoom) > MAX_TILES
+  ) {
     maxZoom--;
   }
   const tiles = countTiles(bounds, MIN_ZOOM, maxZoom);
@@ -158,7 +180,9 @@ export async function saveAreaOffline(
         clearInterval(watchdog);
         reject(
           new Error(
-            `The download stopped moving${lastError ? ` (${lastError})` : ''}. Check your connection and try again; what was saved is kept.`,
+            `The download stopped moving${
+              lastError ? ` (${lastError})` : ''
+            }. Check your connection and try again; what was saved is kept.`,
           ),
         );
       }

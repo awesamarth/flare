@@ -25,7 +25,10 @@ export function SosButton({
     try {
       await sendSos(groupId, on);
     } catch (error) {
-      Alert.alert("SOS didn't send", error instanceof Error ? error.message : String(error));
+      Alert.alert(
+        "SOS didn't send",
+        error instanceof Error ? error.message : String(error),
+      );
     } finally {
       setBusy(false);
     }
@@ -71,9 +74,15 @@ export function SosButton({
           backgroundColor: pressed ? theme.danger : theme.dangerSoft,
         },
         disabled && styles.disabled,
-      ]}>
+      ]}
+    >
       {({ pressed }) => (
-        <Text style={[styles.label, pressed ? styles.onDanger : { color: theme.danger }]}>
+        <Text
+          style={[
+            styles.label,
+            pressed ? styles.onDanger : { color: theme.danger },
+          ]}
+        >
           {pressed ? 'Hold…' : 'SOS'}
         </Text>
       )}

@@ -1,6 +1,19 @@
 import React, { useLayoutEffect, useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { Avatar, Button, Card, ColorPicker, SectionTitle } from '../components/ui';
+import {
+  Alert,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
+import {
+  Avatar,
+  Button,
+  Card,
+  ColorPicker,
+  SectionTitle,
+} from '../components/ui';
 import { formatDistance } from '../lib/geo';
 import { formatRange, isFresh, rssiToRange } from '../lib/proximity';
 import { formatAgo, shortAddress } from '../lib/time';
@@ -39,7 +52,9 @@ export function GroupScreen({ navigation, route }: ScreenProps<'Group'>) {
   if (!group) {
     return (
       <View style={[styles.center, { backgroundColor: theme.background }]}>
-        <Text style={{ color: theme.muted }}>This group is no longer on this phone.</Text>
+        <Text style={{ color: theme.muted }}>
+          This group is no longer on this phone.
+        </Text>
       </View>
     );
   }
@@ -49,7 +64,10 @@ export function GroupScreen({ navigation, route }: ScreenProps<'Group'>) {
     try {
       await task();
     } catch (error) {
-      Alert.alert('Something went wrong', error instanceof Error ? error.message : String(error));
+      Alert.alert(
+        'Something went wrong',
+        error instanceof Error ? error.message : String(error),
+      );
     } finally {
       setBusy(null);
     }
@@ -63,42 +81,59 @@ export function GroupScreen({ navigation, route }: ScreenProps<'Group'>) {
       }
       const outcome = await handleScan(value, groupId);
       if (outcome.kind === 'added') {
-        Alert.alert('Added', `${outcome.name ?? 'They'} will show up once their phone confirms.`);
+        Alert.alert(
+          'Added',
+          `${outcome.name ?? 'They'} will show up once their phone confirms.`,
+        );
       } else {
-        Alert.alert('That was a group code', 'To add someone, scan their personal code.');
+        Alert.alert(
+          'That was a group code',
+          'To add someone, scan their personal code.',
+        );
       }
     });
 
   const confirmLeave = () =>
-    Alert.alert('Leave group?', `You'll stop sharing your location with ${group.name}.`, [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Leave',
-        style: 'destructive',
-        onPress: () =>
-          run('leave', async () => {
-            await leaveGroup(groupId);
-            navigation.popTo('Home');
-          }),
-      },
-    ]);
+    Alert.alert(
+      'Leave group?',
+      `You'll stop sharing your location with ${group.name}.`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Leave',
+          style: 'destructive',
+          onPress: () =>
+            run('leave', async () => {
+              await leaveGroup(groupId);
+              navigation.popTo('Home');
+            }),
+        },
+      ],
+    );
 
   const distanceOf = (address: string) =>
     located.find(l => l.member.address === address)?.distance;
   const sorted = members
     .slice()
-    .sort((a, b) => (distanceOf(a.address) ?? Infinity) - (distanceOf(b.address) ?? Infinity));
+    .sort(
+      (a, b) =>
+        (distanceOf(a.address) ?? Infinity) -
+        (distanceOf(b.address) ?? Infinity),
+    );
 
   return (
     <ScrollView
       style={{ backgroundColor: theme.background }}
-      contentContainerStyle={styles.content}>
+      contentContainerStyle={styles.content}
+    >
       {Object.values(group.joinRequests).map(request => (
         <Card key={request.address} style={styles.block}>
           <View style={styles.row}>
             <Avatar name={request.name} color={request.color} size={36} />
             <View style={[styles.flex, styles.gap]}>
-              <Text style={[styles.title, { color: theme.text }]}>{request.name}</Text>
+              <Text style={[styles.title, { color: theme.text }]}>
+                {request.name}
+              </Text>
               <Text style={[styles.sub, { color: theme.muted }]}>
                 wants to join · {formatAgo(request.requestedAt, now)}
               </Text>
@@ -110,7 +145,9 @@ export function GroupScreen({ navigation, route }: ScreenProps<'Group'>) {
               compact
               loading={busy === `approve:${request.address}`}
               onPress={() =>
-                run(`approve:${request.address}`, () => approveJoin(groupId, request.address))
+                run(`approve:${request.address}`, () =>
+                  approveJoin(groupId, request.address),
+                )
               }
               style={styles.flex}
             />
@@ -136,26 +173,39 @@ export function GroupScreen({ navigation, route }: ScreenProps<'Group'>) {
         <SectionTitle>{`People (${members.length + 1})`}</SectionTitle>
         {sorted.length === 0 ? (
           <Text style={[styles.sub, { color: theme.muted }]}>
-            Just you. Share the invite code, or scan someone's personal code to add them.
+            Just you. Share the invite code, or scan someone's personal code to
+            add them.
           </Text>
         ) : (
           sorted.map(member => {
             const distance = distanceOf(member.address);
             const prox = proximity[member.address];
-            const ble = isFresh(prox, now) ? formatRange(rssiToRange(prox.rssi)) : undefined;
+            const ble = isFresh(prox, now)
+              ? formatRange(rssiToRange(prox.rssi))
+              : undefined;
             return (
               <Pressable
                 key={member.address}
                 accessibilityRole="button"
                 onPress={() =>
-                  navigation.navigate('Find', { address: member.address, groupId })
+                  navigation.navigate('Find', {
+                    address: member.address,
+                    groupId,
+                  })
                 }
-                style={[styles.row, styles.member, { borderColor: theme.border }]}>
+                style={[
+                  styles.row,
+                  styles.member,
+                  { borderColor: theme.border },
+                ]}
+              >
                 <Avatar
                   name={member.name}
                   color={member.color ?? theme.faint}
                   size={36}
-                  dimmed={!member.lastHeardAt || now - member.lastHeardAt > STALE_MS}
+                  dimmed={
+                    !member.lastHeardAt || now - member.lastHeardAt > STALE_MS
+                  }
                 />
                 <View style={[styles.flex, styles.gap]}>
                   <Text style={[styles.title, { color: theme.text }]}>
@@ -169,7 +219,8 @@ export function GroupScreen({ navigation, route }: ScreenProps<'Group'>) {
                   </Text>
                 </View>
                 <Text style={[styles.title, { color: theme.text }]}>
-                  {ble ?? (distance !== undefined ? formatDistance(distance) : '—')}
+                  {ble ??
+                    (distance !== undefined ? formatDistance(distance) : '—')}
                 </Text>
               </Pressable>
             );
@@ -212,13 +263,23 @@ export function GroupScreen({ navigation, route }: ScreenProps<'Group'>) {
           style={styles.flex}
         />
       </View>
-      <Button label="Leave group" variant="ghost" onPress={confirmLeave} style={styles.top} />
+      <Button
+        label="Leave group"
+        variant="ghost"
+        onPress={confirmLeave}
+        style={styles.top}
+      />
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 },
+  center: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 24,
+  },
   content: { padding: 20, paddingBottom: 40 },
   flex: { flex: 1 },
   gap: { marginLeft: 10 },

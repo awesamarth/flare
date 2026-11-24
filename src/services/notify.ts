@@ -24,7 +24,11 @@ export function setupNotifications(onOpen: (target: NotifyTarget) => void) {
   openHandler = onOpen;
   ready ??= (async () => {
     if (Platform.OS === 'ios') {
-      await notifee.requestPermission({ alert: true, sound: true, badge: false });
+      await notifee.requestPermission({
+        alert: true,
+        sound: true,
+        badge: false,
+      });
     }
     await notifee.createChannel({
       id: CHANNEL_SOS,
@@ -102,7 +106,8 @@ export async function notifySystem(
       data,
       android: {
         channelId: tone === 'danger' ? CHANNEL_SOS : CHANNEL_ALERTS,
-        category: tone === 'danger' ? AndroidCategory.ALARM : AndroidCategory.MESSAGE,
+        category:
+          tone === 'danger' ? AndroidCategory.ALARM : AndroidCategory.MESSAGE,
         importance: AndroidImportance.HIGH,
         visibility: AndroidVisibility.PUBLIC,
         pressAction: { id: 'default' },

@@ -10,7 +10,12 @@ export const groupConv = (groupId: string): ConversationId => `g:${groupId}`;
 export const directConv = (address: string): ConversationId => `d:${address}`;
 
 /** `nobody`: a group message with no other members to send it to. */
-export type DeliveryStatus = 'sending' | 'sent' | 'delivered' | 'failed' | 'nobody';
+export type DeliveryStatus =
+  | 'sending'
+  | 'sent'
+  | 'delivered'
+  | 'failed'
+  | 'nobody';
 
 export type ChatMessage = {
   id: string;
@@ -41,7 +46,11 @@ type MessagesState = {
   directPeers: Record<string, DirectPeer>;
   /** SDK message id -> where our copy lives, for delivery receipts. */
   meshIndex: Record<string, { conv: ConversationId; id: string }>;
-  add: (conv: ConversationId, message: ChatMessage, countUnread: boolean) => void;
+  add: (
+    conv: ConversationId,
+    message: ChatMessage,
+    countUnread: boolean,
+  ) => void;
   patch: (
     conv: ConversationId,
     id: string,
@@ -129,15 +138,19 @@ export const useMessages = create<MessagesState>()(
           return;
         }
         set(state => {
-          const next = updateMessage(state.conversations[ref.conv], ref.id, m => {
-            const delivered = (m.delivered ?? 0) + 1;
-            const recipients = m.recipients ?? 1;
-            return {
-              ...m,
-              delivered: Math.min(delivered, recipients),
-              status: 'delivered',
-            };
-          });
+          const next = updateMessage(
+            state.conversations[ref.conv],
+            ref.id,
+            m => {
+              const delivered = (m.delivered ?? 0) + 1;
+              const recipients = m.recipients ?? 1;
+              return {
+                ...m,
+                delivered: Math.min(delivered, recipients),
+                status: 'delivered',
+              };
+            },
+          );
           const meshIndex = omitKey(state.meshIndex, meshId);
           return next
             ? {

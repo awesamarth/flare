@@ -1,5 +1,12 @@
 import React, { useLayoutEffect, useState } from 'react';
-import { Alert, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import {
+  Alert,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
 import { Button, Card, SectionTitle } from '../components/ui';
 import {
   bearingDeg,
@@ -38,7 +45,10 @@ export function MeetScreen({ navigation, route }: ScreenProps<'Meet'>) {
     try {
       await task();
     } catch (error) {
-      Alert.alert("Couldn't update", error instanceof Error ? error.message : String(error));
+      Alert.alert(
+        "Couldn't update",
+        error instanceof Error ? error.message : String(error),
+      );
     } finally {
       setBusy(null);
     }
@@ -46,19 +56,27 @@ export function MeetScreen({ navigation, route }: ScreenProps<'Meet'>) {
 
   const where =
     meet && position
-      ? { distance: distanceMeters(position, meet), bearing: bearingDeg(position, meet) }
+      ? {
+          distance: distanceMeters(position, meet),
+          bearing: bearingDeg(position, meet),
+        }
       : undefined;
 
   return (
     <ScrollView
       style={{ backgroundColor: theme.background }}
       contentContainerStyle={styles.content}
-      keyboardShouldPersistTaps="always">
+      keyboardShouldPersistTaps="always"
+    >
       {meet ? (
         <Card>
-          <Text style={[styles.label, { color: theme.text }]}>{meet.label}</Text>
+          <Text style={[styles.label, { color: theme.text }]}>
+            {meet.label}
+          </Text>
           {meet.when ? (
-            <Text style={[styles.when, { color: theme.primary }]}>{meet.when}</Text>
+            <Text style={[styles.when, { color: theme.primary }]}>
+              {meet.when}
+            </Text>
           ) : null}
           {where ? (
             <Text style={[styles.where, { color: theme.text }]}>
@@ -72,14 +90,15 @@ export function MeetScreen({ navigation, route }: ScreenProps<'Meet'>) {
             </Text>
           ) : null}
           <Text style={[styles.meta, { color: theme.muted }]}>
-            Set by {meet.byName ?? shortAddress(meet.by)} {formatAgo(meet.ts, now)} · pinned ±
-            {formatDistance(meet.acc)}
+            Set by {meet.byName ?? shortAddress(meet.by)}{' '}
+            {formatAgo(meet.ts, now)} · pinned ±{formatDistance(meet.acc)}
           </Text>
         </Card>
       ) : (
         <Text style={[styles.empty, { color: theme.muted }]}>
-          No meeting point yet. Stand at the spot and pin it, so anyone who loses the group knows
-          where to go, even if they were out of range when you set it.
+          No meeting point yet. Stand at the spot and pin it, so anyone who
+          loses the group knows where to go, even if they were out of range when
+          you set it.
         </Text>
       )}
 
@@ -93,7 +112,11 @@ export function MeetScreen({ navigation, route }: ScreenProps<'Meet'>) {
           maxLength={60}
           style={[
             styles.input,
-            { color: theme.text, backgroundColor: theme.surface, borderColor: theme.border },
+            {
+              color: theme.text,
+              backgroundColor: theme.surface,
+              borderColor: theme.border,
+            },
           ]}
         />
         <TextInput
@@ -104,12 +127,18 @@ export function MeetScreen({ navigation, route }: ScreenProps<'Meet'>) {
           maxLength={30}
           style={[
             styles.input,
-            { color: theme.text, backgroundColor: theme.surface, borderColor: theme.border },
+            {
+              color: theme.text,
+              backgroundColor: theme.surface,
+              borderColor: theme.border,
+            },
           ]}
         />
         <Text style={[styles.meta, { color: theme.faint }]}>
           {position
-            ? `Uses where you're standing now (GPS ±${Math.round(position.acc)} m).`
+            ? `Uses where you're standing now (GPS ±${Math.round(
+                position.acc,
+              )} m).`
             : 'Waiting for GPS before you can pin.'}
         </Text>
         <Button

@@ -17,7 +17,10 @@ import { MEMBER_COLORS, useTheme } from '../theme';
 
 const MAX_NAME = 24;
 
-export function OnboardingScreen({ navigation, route }: ScreenProps<'Onboarding'>) {
+export function OnboardingScreen({
+  navigation,
+  route,
+}: ScreenProps<'Onboarding'>) {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const editing = route.params?.edit === true;
@@ -42,13 +45,15 @@ export function OnboardingScreen({ navigation, route }: ScreenProps<'Onboarding'
   return (
     <KeyboardAvoidingView
       style={[styles.flex, { backgroundColor: theme.background }]}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
       <ScrollView
         keyboardShouldPersistTaps="always"
         contentContainerStyle={[
           styles.content,
           { paddingTop: insets.top + 32, paddingBottom: insets.bottom + 24 },
-        ]}>
+        ]}
+      >
         {!editing ? (
           <>
             <Text style={[styles.brand, { color: theme.primary }]}>FLARE</Text>
@@ -56,8 +61,8 @@ export function OnboardingScreen({ navigation, route }: ScreenProps<'Onboarding'
               Find your people, even with no signal.
             </Text>
             <Text style={[styles.lead, { color: theme.muted }]}>
-              Flare talks phone to phone over Bluetooth, so chat and locations keep
-              working in crowds and places without internet.
+              Flare talks phone to phone over Bluetooth, so chat and locations
+              keep working in crowds and places without internet.
             </Text>
           </>
         ) : null}
@@ -79,14 +84,19 @@ export function OnboardingScreen({ navigation, route }: ScreenProps<'Onboarding'
           onSubmitEditing={save}
           style={[
             styles.input,
-            { color: theme.text, backgroundColor: theme.surface, borderColor: theme.border },
+            {
+              color: theme.text,
+              backgroundColor: theme.surface,
+              borderColor: theme.border,
+            },
           ]}
         />
 
         <Text style={[styles.label, { color: theme.muted }]}>Your color</Text>
         <ColorPicker colors={MEMBER_COLORS} value={color} onChange={setColor} />
         <Text style={[styles.hint, { color: theme.faint }]}>
-          If someone in a group already has this color, you'll get the next free one there.
+          If someone in a group already has this color, you'll get the next free
+          one there.
         </Text>
 
         <Button

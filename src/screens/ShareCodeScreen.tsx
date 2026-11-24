@@ -1,5 +1,12 @@
 import React, { useEffect, useLayoutEffect, useState } from 'react';
-import { ActivityIndicator, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
+import {
+  ActivityIndicator,
+  ScrollView,
+  Share,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import { Button } from '../components/ui';
 import type { ScreenProps } from '../navigation/types';
@@ -8,7 +15,10 @@ import { useGroups } from '../state/groups';
 import { useProfile } from '../state/profile';
 import { useTheme } from '../theme';
 
-export function ShareCodeScreen({ navigation, route }: ScreenProps<'ShareCode'>) {
+export function ShareCodeScreen({
+  navigation,
+  route,
+}: ScreenProps<'ShareCode'>) {
   const { groupId } = route.params;
   const theme = useTheme();
   const group = useGroups(s => (groupId ? s.groups[groupId] : undefined));
@@ -24,7 +34,9 @@ export function ShareCodeScreen({ navigation, route }: ScreenProps<'ShareCode'>)
     let active = true;
     (groupId ? groupInviteLink(groupId) : personalLink())
       .then(value => active && setLink(value))
-      .catch(e => active && setError(e instanceof Error ? e.message : String(e)));
+      .catch(
+        e => active && setError(e instanceof Error ? e.message : String(e)),
+      );
     return () => {
       active = false;
     };
@@ -33,7 +45,8 @@ export function ShareCodeScreen({ navigation, route }: ScreenProps<'ShareCode'>)
   return (
     <ScrollView
       style={{ backgroundColor: theme.background }}
-      contentContainerStyle={styles.content}>
+      contentContainerStyle={styles.content}
+    >
       <Text style={[styles.title, { color: theme.text }]}>
         {groupId ? group?.name ?? 'Group' : name}
       </Text>
@@ -48,7 +61,13 @@ export function ShareCodeScreen({ navigation, route }: ScreenProps<'ShareCode'>)
       <View style={styles.qrBox}>
         {link ? (
           // Always dark-on-white: scanners read that most reliably.
-          <QRCode value={link} size={260} color="#000000" backgroundColor="#FFFFFF" quietZone={16} />
+          <QRCode
+            value={link}
+            size={260}
+            color="#000000"
+            backgroundColor="#FFFFFF"
+            quietZone={16}
+          />
         ) : error ? (
           <Text style={[styles.error, { color: theme.danger }]}>{error}</Text>
         ) : (
@@ -65,7 +84,8 @@ export function ShareCodeScreen({ navigation, route }: ScreenProps<'ShareCode'>)
         />
       ) : null}
       <Text style={[styles.hint, { color: theme.faint }]}>
-        Scanning in person is safest. A shared link works too, but only send it to people you trust.
+        Scanning in person is safest. A shared link works too, but only send it
+        to people you trust.
       </Text>
     </ScrollView>
   );

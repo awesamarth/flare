@@ -44,12 +44,17 @@ function Banner({ alert }: { alert: Alert }) {
       useGroups.getState().setActiveGroup(alert.target.groupId);
       navigationRef.dispatch(StackActions.popTo('Home'));
     } else if (alert.target?.address) {
-      navigationRef.navigate('Chat', { conv: directConv(alert.target.address) });
+      navigationRef.navigate('Chat', {
+        conv: directConv(alert.target.address),
+      });
     }
   };
 
   return (
-    <View pointerEvents="box-none" style={[styles.wrap, { top: insets.top + 8 }]}>
+    <View
+      pointerEvents="box-none"
+      style={[styles.wrap, { top: insets.top + 8 }]}
+    >
       <Pressable
         accessibilityRole="alert"
         onPress={open}
@@ -59,15 +64,25 @@ function Banner({ alert }: { alert: Alert }) {
             backgroundColor: danger ? theme.danger : theme.surface,
             borderColor: danger ? theme.danger : theme.border,
           },
-        ]}>
+        ]}
+      >
         <View style={styles.textBox}>
-          <Text style={[styles.title, danger ? styles.onDanger : { color: theme.text }]}>
+          <Text
+            style={[
+              styles.title,
+              danger ? styles.onDanger : { color: theme.text },
+            ]}
+          >
             {alert.title}
           </Text>
           {alert.body ? (
             <Text
               numberOfLines={2}
-              style={[styles.body, danger ? styles.onDanger : { color: theme.muted }]}>
+              style={[
+                styles.body,
+                danger ? styles.onDanger : { color: theme.muted },
+              ]}
+            >
               {alert.body}
             </Text>
           ) : null}
@@ -76,8 +91,16 @@ function Banner({ alert }: { alert: Alert }) {
           accessibilityRole="button"
           accessibilityLabel="Dismiss"
           hitSlop={12}
-          onPress={() => dismiss(alert.id)}>
-          <Text style={[styles.close, danger ? styles.onDanger : { color: theme.muted }]}>✕</Text>
+          onPress={() => dismiss(alert.id)}
+        >
+          <Text
+            style={[
+              styles.close,
+              danger ? styles.onDanger : { color: theme.muted },
+            ]}
+          >
+            ✕
+          </Text>
         </Pressable>
       </Pressable>
     </View>

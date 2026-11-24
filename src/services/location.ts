@@ -64,16 +64,22 @@ export async function startLocation() {
     distanceFilter: 0,
   });
 
-  headingToken = watchHeading(onHeading, () => {
-    runtime().set({ headingAvailable: false, heading: undefined });
-  }, { headingFilter: 1 });
+  headingToken = watchHeading(
+    onHeading,
+    () => {
+      runtime().set({ headingAvailable: false, heading: undefined });
+    },
+    { headingFilter: 1 },
+  );
 
   tick = setInterval(maybeShare, TICK_MS);
 
   // Phone in a pocket: keep sharing via a location foreground service.
   appStateSub ??= AppState.addEventListener('change', state => {
     if (state === 'background') {
-      startPocketMode().catch(error => console.warn('[flare] pocket mode failed', error));
+      startPocketMode().catch(error =>
+        console.warn('[flare] pocket mode failed', error),
+      );
     } else if (state === 'active') {
       stopPocketMode().catch(() => {});
     }
@@ -83,7 +89,9 @@ export async function startLocation() {
 
 export async function refreshBackgroundPermission() {
   const result = await checkBackgroundPermission();
-  useRuntime.getState().set({ backgroundLocation: result.background === 'granted' });
+  useRuntime
+    .getState()
+    .set({ backgroundLocation: result.background === 'granted' });
   return result;
 }
 
@@ -97,7 +105,10 @@ export async function requestPocketMode(): Promise<void> {
     useRuntime.getState().set({ backgroundLocation: true });
     return;
   }
-  if (result.needsSettingsRedirect || result.canRequestBackgroundInline === false) {
+  if (
+    result.needsSettingsRedirect ||
+    result.canRequestBackgroundInline === false
+  ) {
     await openAppLocationSettings();
   }
 }
@@ -122,7 +133,8 @@ async function startPocketMode() {
       requestNotificationPermission: false,
       foregroundService: {
         notificationTitle: 'Sharing your location',
-        notificationText: 'Your group can still find you while Flare is in the background.',
+        notificationText:
+          'Your group can still find you while Flare is in the background.',
         notificationChannelName: 'Location sharing',
         notificationIcon: 'ic_notification',
         stopActionTitle: 'Stop',
@@ -170,7 +182,8 @@ export function stopLocation() {
 function onPosition(position: GeolocationResponse) {
   const now = Date.now();
   const ts =
-    Number.isFinite(position.timestamp) && Math.abs(now - position.timestamp) < 86_400_000
+    Number.isFinite(position.timestamp) &&
+    Math.abs(now - position.timestamp) < 86_400_000
       ? Math.min(position.timestamp, now)
       : now;
   const fix: LocationFix = {
@@ -187,7 +200,8 @@ function onPositionError(error: LocationError) {
   // Keep the last fix; the UI shows its age.
   const message = error.message.toLowerCase();
   runtime().set({
-    locationStatus: message.includes('disabled') || message.includes('off') ? 'off' : 'error',
+    locationStatus:
+      message.includes('disabled') || message.includes('off') ? 'off' : 'error',
   });
 }
 

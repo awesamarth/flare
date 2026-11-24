@@ -43,7 +43,11 @@ export function buildGroupLink(
   groupName: string,
   invite: string,
 ): string {
-  return `${SCHEME}join?${encodeParams({ g: groupId, n: groupName, c: invite })}`;
+  return `${SCHEME}join?${encodeParams({
+    g: groupId,
+    n: groupName,
+    c: invite,
+  })}`;
 }
 
 export function buildPersonLink(invite: string): string {

@@ -15,7 +15,9 @@ export function PersonScreen({ navigation, route }: ScreenProps<'Person'>) {
   const groups = useGroups(s => s.groups);
   const [busy, setBusy] = useState<string | null>(null);
   const display = name ?? shortAddress(address);
-  const adminGroups = Object.values(groups).filter(g => g.isAdmin && !g.members[address]);
+  const adminGroups = Object.values(groups).filter(
+    g => g.isAdmin && !g.members[address],
+  );
 
   useLayoutEffect(() => {
     navigation.setOptions({ title: display });
@@ -27,7 +29,10 @@ export function PersonScreen({ navigation, route }: ScreenProps<'Person'>) {
       await addMember(groupId, address, name);
       navigation.replace('Group', { groupId });
     } catch (error) {
-      Alert.alert("Couldn't add", error instanceof Error ? error.message : String(error));
+      Alert.alert(
+        "Couldn't add",
+        error instanceof Error ? error.message : String(error),
+      );
       setBusy(null);
     }
   };
@@ -35,7 +40,8 @@ export function PersonScreen({ navigation, route }: ScreenProps<'Person'>) {
   return (
     <ScrollView
       style={{ backgroundColor: theme.background }}
-      contentContainerStyle={styles.content}>
+      contentContainerStyle={styles.content}
+    >
       <Avatar name={display} color={theme.faint} size={72} />
       <Text style={[styles.name, { color: theme.text }]}>{display}</Text>
       <Text style={[styles.address, { color: theme.faint }]} selectable>
@@ -44,7 +50,9 @@ export function PersonScreen({ navigation, route }: ScreenProps<'Person'>) {
 
       <Button
         label="Send a message"
-        onPress={() => navigation.replace('Chat', { conv: directConv(address) })}
+        onPress={() =>
+          navigation.replace('Chat', { conv: directConv(address) })
+        }
         style={styles.cta}
       />
 

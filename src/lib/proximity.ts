@@ -38,7 +38,8 @@ export function rssiToRange(rssi: number): DistanceRange {
 }
 
 export function formatRange({ low, high }: DistanceRange): string {
-  const round = (m: number) => (m < 10 ? Math.max(1, Math.round(m)) : Math.round(m / 5) * 5);
+  const round = (m: number) =>
+    m < 10 ? Math.max(1, Math.round(m)) : Math.round(m / 5) * 5;
   const lo = round(low);
   const hi = round(high);
   if (hi <= 1) {
@@ -65,7 +66,8 @@ export class RssiSmoother {
   private history: { at: number; value: number }[] = [];
 
   push(rssi: number, at: number): Proximity {
-    this.value = this.value === undefined ? rssi : 0.7 * this.value + 0.3 * rssi;
+    this.value =
+      this.value === undefined ? rssi : 0.7 * this.value + 0.3 * rssi;
     this.history.push({ at, value: this.value });
     this.history = this.history.filter(h => at - h.at <= 8_000);
     // The most recent reading at least ~3.5 s old.

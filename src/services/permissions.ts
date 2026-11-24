@@ -16,7 +16,10 @@ export async function requestAndroidPermissions(): Promise<PermissionResult> {
   }
   const api = Number(Platform.Version);
   const P = PermissionsAndroid.PERMISSIONS;
-  const wanted: Permission[] = [P.ACCESS_FINE_LOCATION, P.ACCESS_COARSE_LOCATION];
+  const wanted: Permission[] = [
+    P.ACCESS_FINE_LOCATION,
+    P.ACCESS_COARSE_LOCATION,
+  ];
   if (api >= 31) {
     wanted.push(P.BLUETOOTH_SCAN, P.BLUETOOTH_ADVERTISE, P.BLUETOOTH_CONNECT);
   }
@@ -29,7 +32,8 @@ export async function requestAndroidPermissions(): Promise<PermissionResult> {
   const granted = (p: Permission) =>
     result[p] === PermissionsAndroid.RESULTS.GRANTED;
 
-  const location = granted(P.ACCESS_FINE_LOCATION) || granted(P.ACCESS_COARSE_LOCATION);
+  const location =
+    granted(P.ACCESS_FINE_LOCATION) || granted(P.ACCESS_COARSE_LOCATION);
   const bluetooth =
     api >= 31
       ? granted(P.BLUETOOTH_SCAN) &&

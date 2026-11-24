@@ -53,7 +53,8 @@ export function Button({
           opacity: inactive ? 0.5 : pressed ? 0.8 : 1,
         },
         style,
-      ]}>
+      ]}
+    >
       {loading ? (
         <ActivityIndicator color={palette.fg} />
       ) : (
@@ -85,8 +86,14 @@ export function Avatar({
           backgroundColor: color,
         },
         dimmed && styles.dimmed,
-      ]}>
-      <Text style={[styles.avatarText, { color: textOn(color), fontSize: size * 0.42 }]}>
+      ]}
+    >
+      <Text
+        style={[
+          styles.avatarText,
+          { color: textOn(color), fontSize: size * 0.42 },
+        ]}
+      >
         {(name ?? '?').slice(0, 1).toUpperCase()}
       </Text>
     </View>
@@ -147,7 +154,8 @@ export function Card({
         styles.card,
         { backgroundColor: theme.surface, borderColor: theme.border },
         style,
-      ]}>
+      ]}
+    >
       {children}
     </View>
   );
@@ -155,7 +163,9 @@ export function Card({
 
 export function SectionTitle({ children }: { children: string }) {
   const theme = useTheme();
-  return <Text style={[styles.section, { color: theme.muted }]}>{children}</Text>;
+  return (
+    <Text style={[styles.section, { color: theme.muted }]}>{children}</Text>
+  );
 }
 
 export function Badge({ count }: { count: number }) {

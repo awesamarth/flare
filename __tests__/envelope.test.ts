@@ -4,7 +4,11 @@ import {
   encodeDirect,
   encodeGroup,
 } from '../src/protocol/envelope';
-import { buildGroupLink, buildPersonLink, parseLink } from '../src/protocol/links';
+import {
+  buildGroupLink,
+  buildPersonLink,
+  parseLink,
+} from '../src/protocol/links';
 import { bearingDeg, distanceMeters } from '../src/lib/geo';
 
 describe('envelope', () => {
@@ -22,10 +26,18 @@ describe('envelope', () => {
   });
 
   it('rejects malformed input', () => {
-    expect(decodeGroup('{"v":1,"s":"g","k":"loc","lat":200,"lon":0,"acc":1,"ts":1}')).toBeNull();
-    expect(decodeGroup('{"v":1,"s":"g","k":"profile","name":"x","color":"red","ts":1}')).toBeNull();
+    expect(
+      decodeGroup('{"v":1,"s":"g","k":"loc","lat":200,"lon":0,"acc":1,"ts":1}'),
+    ).toBeNull();
+    expect(
+      decodeGroup(
+        '{"v":1,"s":"g","k":"profile","name":"x","color":"red","ts":1}',
+      ),
+    ).toBeNull();
     expect(decodeGroup('not json')).toBeNull();
-    expect(decodeGroup('{"v":2,"s":"g","k":"chat","id":"a","text":"b","ts":1}')).toBeNull();
+    expect(
+      decodeGroup('{"v":2,"s":"g","k":"chat","id":"a","text":"b","ts":1}'),
+    ).toBeNull();
   });
 
   it('treats plain direct text as chat', () => {
@@ -42,7 +54,10 @@ describe('links', () => {
       groupName: 'Sunburn & co',
       invite: 'abc_DEF-123',
     });
-    expect(parseLink(buildPersonLink('xyz'))).toEqual({ type: 'person', invite: 'xyz' });
+    expect(parseLink(buildPersonLink('xyz'))).toEqual({
+      type: 'person',
+      invite: 'xyz',
+    });
   });
 
   it('ignores foreign codes', () => {

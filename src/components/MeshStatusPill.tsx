@@ -45,7 +45,11 @@ export function MeshStatusPill({ onPress }: { onPress?: () => void }) {
       accessibilityRole="button"
       accessibilityLabel={`Mesh status: ${label}`}
       onPress={onPress}
-      style={[styles.pill, { backgroundColor: theme.surface, borderColor: theme.border }]}>
+      style={[
+        styles.pill,
+        { backgroundColor: theme.surface, borderColor: theme.border },
+      ]}
+    >
       <View style={[styles.dot, { backgroundColor: color }]} />
       <Text style={[styles.text, { color: theme.text }]}>{label}</Text>
     </Pressable>

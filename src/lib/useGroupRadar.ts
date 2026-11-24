@@ -16,7 +16,11 @@ export type Located = {
 };
 
 /** Where everyone in the group is relative to us, ready for the radar. */
-export function useGroupRadar(group: Group | undefined, now: number, fallbackColor: string) {
+export function useGroupRadar(
+  group: Group | undefined,
+  now: number,
+  fallbackColor: string,
+) {
   const position = useRuntime(s => s.position);
 
   const members = useMemo(() => Object.values(group?.members ?? {}), [group]);
