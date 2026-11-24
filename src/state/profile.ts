@@ -17,6 +17,9 @@ type ProfileState = {
    */
   advertiseNodeHash: boolean;
   setAdvertiseNodeHash: (on: boolean) => void;
+  /** Share location with groups. SOS still includes it when this is off. */
+  shareLocation: boolean;
+  setShareLocation: (on: boolean) => void;
 };
 
 export const useProfile = create<ProfileState>()(
@@ -29,6 +32,8 @@ export const useProfile = create<ProfileState>()(
       setAddress: address => set({ address }),
       advertiseNodeHash: false,
       setAdvertiseNodeHash: on => set({ advertiseNodeHash: on }),
+      shareLocation: true,
+      setShareLocation: on => set({ shareLocation: on }),
     }),
     { name: 'profile', storage: persistStorage },
   ),

@@ -440,11 +440,28 @@ async function handleGroupMessage(event: GroupMessageReceivedEvent) {
       break;
 
     case 'loc': {
-      const current = groups.groups[groupId]?.members[sender]?.loc;
+      const member = groups.groups[groupId]?.members[sender];
       const ts = clampTs(payload.ts);
-      if (!current || ts > current.ts) {
+      // A fix taken before they paused arrived late: ignore it.
+      if (member?.locPausedAt && ts <= member.locPausedAt) {
+        break;
+      }
+      if (!member?.loc || ts > member.loc.ts) {
         groups.updateMember(groupId, sender, {
           loc: { lat: payload.lat, lon: payload.lon, acc: payload.acc, ts },
+          locPausedAt: undefined,
+        });
+      }
+      break;
+    }
+
+    case 'loc_off': {
+      const ts = clampTs(payload.ts);
+      const member = groups.groups[groupId]?.members[sender];
+      if (!member?.loc || ts >= member.loc.ts) {
+        groups.updateMember(groupId, sender, {
+          loc: undefined,
+          locPausedAt: ts,
         });
       }
       break;
@@ -744,7 +761,13 @@ async function announce(groupId: string) {
     'medium',
   );
   const position = runtime().position;
-  if (position) {
+  if (!useProfile.getState().shareLocation) {
+    await protocol.meshSendGroupMessage(
+      groupId,
+      encodeGroup({ k: 'loc_off', ts: Date.now() }),
+      'low',
+    );
+  } else if (position) {
     await protocol.meshSendGroupMessage(
       groupId,
       encodeGroup({ k: 'loc', ...position }),
@@ -753,9 +776,29 @@ async function announce(groupId: string) {
   }
 }
 
+/** Tell every group we stopped sharing, so they drop our last position. */
+export async function broadcastLocationOff(): Promise<void> {
+  if (!isMeshRunning() || !protocol) {
+    return;
+  }
+  const ts = Date.now();
+  for (const group of Object.values(useGroups.getState().groups)) {
+    if (Object.keys(group.members).length === 0) {
+      continue;
+    }
+    await protocol
+      .meshSendGroupMessage(
+        group.id,
+        encodeGroup({ k: 'loc_off', ts }),
+        'medium',
+      )
+      .catch(error => console.warn('[flare] loc_off failed', error));
+  }
+}
+
 /** Share a location fix with every group that has someone else in it. */
 export async function broadcastLocation(fix: LocationFix): Promise<boolean> {
-  if (!isMeshRunning() || !protocol) {
+  if (!isMeshRunning() || !protocol || !useProfile.getState().shareLocation) {
     return false;
   }
   const groups = Object.values(useGroups.getState().groups).filter(
@@ -1082,20 +1125,18 @@ export async function sendPing(groupId: string, to?: string) {
     'high',
   );
   const name = to ? nameFor(to, groupId) : 'everyone';
-  useMessages
-    .getState()
-    .add(
-      groupConv(groupId),
-      {
-        id,
-        from: me() ?? '',
-        text: `You pinged ${name}`,
-        ts: Date.now(),
-        mine: true,
-        kind: 'ping',
-      },
-      false,
-    );
+  useMessages.getState().add(
+    groupConv(groupId),
+    {
+      id,
+      from: me() ?? '',
+      text: `You pinged ${name}`,
+      ts: Date.now(),
+      mine: true,
+      kind: 'ping',
+    },
+    false,
+  );
 }
 
 export async function sendSos(groupId: string, active: boolean) {

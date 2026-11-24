@@ -216,6 +216,7 @@ export function GroupScreen({ navigation, route }: ScreenProps<'Group'>) {
                     {member.lastHeardAt
                       ? `Heard ${formatAgo(member.lastHeardAt, now)}`
                       : 'Not heard from yet'}
+                    {member.locPausedAt ? ' · location paused' : ''}
                   </Text>
                 </View>
                 <Text style={[styles.title, { color: theme.text }]}>

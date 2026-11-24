@@ -21,6 +21,8 @@ export type LocationFix = {
 export type GroupPayload =
   | { k: 'chat'; id: string; text: string; ts: number }
   | ({ k: 'loc' } & LocationFix)
+  /** The sender stopped sharing location; drop what we have for them. */
+  | { k: 'loc_off'; ts: number }
   | { k: 'profile'; name: string; color: string; ts: number }
   | { k: 'ping'; id: string; to?: string; ts: number }
   | { k: 'sos'; id: string; active: boolean; loc?: LocationFix; ts: number };
@@ -128,6 +130,8 @@ export function decodeGroup(content: string): GroupPayload | null {
       const fix = decodeFix(raw);
       return fix ? { k: 'loc', ...fix } : null;
     }
+    case 'loc_off':
+      return { k: 'loc_off', ts };
     case 'profile':
       return isStr(raw.name, MAX_NAME) && isColor(raw.color)
         ? { k: 'profile', name: raw.name, color: raw.color, ts }

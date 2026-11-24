@@ -21,7 +21,8 @@ import {
 import { distanceMeters, normalizeDeg } from '../lib/geo';
 import type { LocationFix } from '../protocol/envelope';
 import { useRuntime, type HeadingQuality } from '../state/runtime';
-import { broadcastLocation } from './mesh';
+import { useProfile } from '../state/profile';
+import { broadcastLocation, broadcastLocationOff } from './mesh';
 
 /** Always share at least this often, so friends see we're still around. */
 const HEARTBEAT_MS = 30_000;
@@ -114,7 +115,11 @@ export async function requestPocketMode(): Promise<void> {
 }
 
 async function startPocketMode() {
-  if (backgroundRunning || !useRuntime.getState().backgroundLocation) {
+  if (
+    backgroundRunning ||
+    !useRuntime.getState().backgroundLocation ||
+    !useProfile.getState().shareLocation
+  ) {
     return;
   }
   backgroundRunning = true;
@@ -238,9 +243,21 @@ function onHeading(heading: Heading) {
   });
 }
 
+/** Turn sharing on or off; off tells groups to forget our last position. */
+export async function setLocationSharing(on: boolean) {
+  useProfile.getState().setShareLocation(on);
+  if (on) {
+    lastSent = null; // share right away
+    maybeShare();
+  } else {
+    await stopPocketMode().catch(() => {});
+    await broadcastLocationOff();
+  }
+}
+
 function maybeShare() {
   const fix = runtime().position;
-  if (!fix) {
+  if (!fix || !useProfile.getState().shareLocation) {
     return;
   }
   const now = Date.now();

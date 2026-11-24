@@ -19,6 +19,11 @@ describe('envelope', () => {
     expect(decodeGroup(encodeGroup(chat))).toEqual(chat);
   });
 
+  it('round-trips a location pause', () => {
+    const off = { k: 'loc_off' as const, ts: 42 };
+    expect(decodeGroup(encodeGroup(off))).toEqual(off);
+  });
+
   it('keeps scopes apart', () => {
     const chat = { k: 'chat' as const, id: 'a1', text: 'hi', ts: 5 };
     expect(decodeDirect(encodeGroup(chat))).toBeNull();

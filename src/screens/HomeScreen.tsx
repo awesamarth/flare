@@ -17,10 +17,11 @@ import { formatAgo, shortAddress } from '../lib/time';
 import { useGroupRadar } from '../lib/useGroupRadar';
 import { useNow } from '../lib/useNow';
 import type { ScreenProps } from '../navigation/types';
-import { requestPocketMode } from '../services/location';
+import { requestPocketMode, setLocationSharing } from '../services/location';
 import { handleScan, sendPing, startMesh } from '../services/mesh';
 import { scanQr } from '../services/scanner';
 import { useGroups } from '../state/groups';
+import { useProfile } from '../state/profile';
 import { directConv, groupConv, useMessages } from '../state/messages';
 import { useRuntime } from '../state/runtime';
 import { useTheme, type Theme } from '../theme';
@@ -41,6 +42,7 @@ export function HomeScreen({ navigation }: ScreenProps<'Home'>) {
   const headingAvailable = useRuntime(s => s.headingAvailable);
   const proximity = useRuntime(s => s.proximity);
   const backgroundLocation = useRuntime(s => s.backgroundLocation);
+  const shareLocation = useProfile(s => s.shareLocation);
 
   const newest = Object.values(groups).sort(
     (a, b) => b.createdAt - a.createdAt,
@@ -129,7 +131,32 @@ export function HomeScreen({ navigation }: ScreenProps<'Home'>) {
       }
     });
 
+  const toggleSharing = () => {
+    if (!shareLocation) {
+      setLocationSharing(true).catch(() => {});
+      return;
+    }
+    Alert.alert(
+      'Pause location sharing?',
+      'Your groups stop seeing where you are and your last position is removed from their radar. SOS still sends your location.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Pause',
+          style: 'destructive',
+          onPress: () => setLocationSharing(false).catch(() => {}),
+        },
+      ],
+    );
+  };
+
   const sensorLine = (() => {
+    if (!shareLocation) {
+      return {
+        text: 'Location sharing paused · tap to share again',
+        warn: true,
+      };
+    }
     if (locationStatus === 'denied') {
       return {
         text: 'Location is off for Flare, so distances are unavailable',
@@ -217,7 +244,10 @@ export function HomeScreen({ navigation }: ScreenProps<'Home'>) {
           </Text>
         </Pressable>
       ))}
-      {group && locationStatus === 'ok' && !backgroundLocation ? (
+      {group &&
+      shareLocation &&
+      locationStatus === 'ok' &&
+      !backgroundLocation ? (
         <Pressable
           onPress={() =>
             requestPocketMode().catch(e =>
@@ -272,14 +302,29 @@ export function HomeScreen({ navigation }: ScreenProps<'Home'>) {
           />
         ) : null}
       </View>
-      <Text
-        style={[
-          styles.sensor,
-          { color: sensorLine.warn ? theme.warning : theme.faint },
-        ]}
+      <Pressable
+        accessibilityRole="switch"
+        accessibilityState={{ checked: shareLocation }}
+        accessibilityLabel="Share my location with my groups"
+        onPress={toggleSharing}
+        hitSlop={8}
       >
-        {sensorLine.text}
-      </Text>
+        <Text
+          style={[
+            styles.sensor,
+            { color: sensorLine.warn ? theme.warning : theme.faint },
+          ]}
+        >
+          {sensorLine.text}
+          {group ? (
+            <Text
+              style={{ color: shareLocation ? theme.success : theme.warning }}
+            >
+              {shareLocation ? '  ·  sharing' : ''}
+            </Text>
+          ) : null}
+        </Text>
+      </Pressable>
 
       <View
         style={[
@@ -335,6 +380,8 @@ export function HomeScreen({ navigation }: ScreenProps<'Home'>) {
                       ? relativeDirection(selectedLocated.bearing - heading.deg)
                       : selectedMember.loc
                       ? 'On the radar'
+                      : selectedMember.locPausedAt
+                      ? 'Paused location sharing'
                       : 'No location yet'}
                   </Text>
                 </View>

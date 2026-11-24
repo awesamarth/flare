@@ -20,6 +20,8 @@ export type Member = {
   /** When we last received anything from them (our clock). */
   lastHeardAt?: number;
   sos?: SosState;
+  /** They paused location sharing at this time (sender clock). */
+  locPausedAt?: number;
 };
 
 /** A shared meeting point, synced to everyone in the group. */
