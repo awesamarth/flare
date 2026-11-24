@@ -27,6 +27,7 @@ import {
   refreshBackgroundPermission,
   startLocation,
 } from './services/location';
+import { listenForLinks } from './services/codes';
 import { startMesh } from './services/mesh';
 import { setupNotifications } from './services/notify';
 import { useGroups } from './state/groups';
@@ -43,8 +44,11 @@ function useServices(enabled: boolean) {
     if (!enabled) {
       return;
     }
+    let stopLinks: (() => void) | undefined;
     const boot = async () => {
       await startMesh();
+      // Links act through the mesh, so only listen once it's up.
+      stopLinks ??= listenForLinks();
       await startLocation().catch(error =>
         console.warn('[flare] location failed to start', error),
       );
@@ -78,7 +82,10 @@ function useServices(enabled: boolean) {
         boot();
       }
     });
-    return () => sub.remove();
+    return () => {
+      sub.remove();
+      stopLinks?.();
+    };
   }, [enabled]);
 }
 

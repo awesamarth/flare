@@ -11,7 +11,6 @@ import {
   Image,
   KeyboardAvoidingView,
   Modal,
-  Platform,
   Pressable,
   StyleSheet,
   Text,
@@ -25,6 +24,7 @@ import {
   launchImageLibrary,
   type ImagePickerResponse,
 } from 'react-native-image-picker';
+import { keyboardBehavior } from '../lib/keyboard';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { getMedia } from '../lib/media';
 import { formatClock, shortAddress } from '../lib/time';
@@ -150,7 +150,7 @@ export function ChatScreen({ navigation, route }: ScreenProps<'Chat'>) {
   return (
     <KeyboardAvoidingView
       style={[styles.flex, { backgroundColor: theme.background }]}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      behavior={keyboardBehavior}
       keyboardVerticalOffset={headerHeight}
     >
       <FlatList

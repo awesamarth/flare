@@ -30,7 +30,8 @@ Flare is a React Native mobile app concept for offline friend finding at crowded
 - Stack: `react-native-nitro-geolocation` (GPS + compass), `react-native-data-scanner` (QR), `react-native-mmkv`, `react-native-svg`, `react-native-qrcode-svg`, React Navigation. No Expo.
 - Home is radar-first (active group). Groups list, group details, chat, find (Bluetooth hot/cold), meeting point (SDK DataStore), status screens.
 - Transports: BLE + Wi-Fi Direct (`autoAccept`, `fastLink: 'requestedOnly'`). `advertiseNodeHash` is an Android opt-in toggle on the Status screen (privacy cost).
-- Tested on one Android phone (Nothing `eeb57179`) and the iOS simulator (no Bluetooth/compass there). Multi-device flows (join, chat, location, rssi, meet/event-map sync, photos) are untested on real devices.
+- Tested on one Android phone (Nothing `eeb57179`) and the iOS simulator (no Bluetooth/compass there). Phone ↔ simulator link over the same Wi-Fi (SDK LAN carrier, Bonjour) verified: group join via `flare://` link + approve, group chat both ways with delivery, location sharing, pause/resume. Still untested: BLE/Wi-Fi Direct between real phones, photos, rssi, meet/event-map sync, background receipt.
+- `flare://` links open the app (Android intent filter, iOS URL type) and go through `src/services/codes.ts`, the same path as a scanned QR. On the simulator: `xcrun simctl openurl <udid> 'flare://join?...'`.
 - Background location ("pocket mode") uses the nitro-geolocation foreground service when "Allow all the time" is granted. Location sharing can be paused from Home (sends `loc_off`).
 - `FlareNative` (Android `FlareNativeModule.kt`, iOS `ios/Flare/FlareNative.m`): battery state for the SDK and writing images to private files for the map.
 - Mesh service tests in `__tests__/mesh.test.ts` mock the SDK; `__mocks__/` holds in-memory MMKV and notification mocks.

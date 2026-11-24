@@ -10,7 +10,7 @@ import {
 import { Avatar, Badge, Button, Card, SectionTitle } from '../components/ui';
 import { shortAddress } from '../lib/time';
 import type { ScreenProps } from '../navigation/types';
-import { handleScan } from '../services/mesh';
+import { openCode } from '../services/codes';
 import { scanQr } from '../services/scanner';
 import { useGroups } from '../state/groups';
 import { groupConv, useMessages, type ConversationId } from '../state/messages';
@@ -57,20 +57,7 @@ export function GroupsScreen({ navigation }: ScreenProps<'Groups'>) {
       if (!value) {
         return;
       }
-      const outcome = await handleScan(value);
-      if (outcome.kind === 'join_requested') {
-        Alert.alert(
-          'Request sent',
-          `The admin of ${outcome.groupName} needs to approve you. Stay near them with Flare open.`,
-        );
-      } else if (outcome.kind === 'already_member') {
-        showOnRadar(outcome.groupId);
-      } else if (outcome.kind === 'person') {
-        navigation.navigate('Person', {
-          address: outcome.address,
-          name: outcome.name,
-        });
-      }
+      await openCode(value);
     } catch (error) {
       Alert.alert(
         'Scan failed',

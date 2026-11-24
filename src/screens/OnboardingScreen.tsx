@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import {
   Keyboard,
   KeyboardAvoidingView,
-  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -11,6 +10,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Avatar, Button, ColorPicker } from '../components/ui';
+import { keyboardBehavior } from '../lib/keyboard';
 import type { ScreenProps } from '../navigation/types';
 import { useProfile } from '../state/profile';
 import { MEMBER_COLORS, useTheme } from '../theme';
@@ -45,7 +45,7 @@ export function OnboardingScreen({
   return (
     <KeyboardAvoidingView
       style={[styles.flex, { backgroundColor: theme.background }]}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      behavior={keyboardBehavior}
     >
       <ScrollView
         keyboardShouldPersistTaps="always"

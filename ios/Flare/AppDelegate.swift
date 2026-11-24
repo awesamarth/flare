@@ -31,6 +31,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     return true
   }
+
+  // flare:// invite links, handed to React Native's Linking.
+  func application(
+    _ app: UIApplication,
+    open url: URL,
+    options: [UIApplication.OpenURLOptionsKey: Any] = [:]
+  ) -> Bool {
+    RCTLinkingManager.application(app, open: url, options: options)
+  }
 }
 
 class ReactNativeDelegate: RCTDefaultReactNativeFactoryDelegate {

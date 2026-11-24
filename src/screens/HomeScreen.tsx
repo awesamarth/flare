@@ -18,7 +18,8 @@ import { useGroupRadar } from '../lib/useGroupRadar';
 import { useNow } from '../lib/useNow';
 import type { ScreenProps } from '../navigation/types';
 import { requestPocketMode, setLocationSharing } from '../services/location';
-import { handleScan, sendPing, startMesh } from '../services/mesh';
+import { openCode } from '../services/codes';
+import { sendPing, startMesh } from '../services/mesh';
 import { scanQr } from '../services/scanner';
 import { useGroups } from '../state/groups';
 import { useProfile } from '../state/profile';
@@ -77,7 +78,8 @@ export function HomeScreen({ navigation }: ScreenProps<'Home'>) {
   const groupUnread = group ? unread[groupConv(group.id)] ?? 0 : 0;
   const requests = group ? Object.keys(group.joinRequests).length : 0;
   const sosMembers = members.filter(m => m.sos?.active);
-  const unplaced = members.length - located.length;
+  const paused = members.filter(m => !m.loc && m.locPausedAt).length;
+  const unplaced = members.length - located.length - paused;
   const meet = group?.meet ?? undefined;
   const meetWhere =
     meet && position
@@ -115,20 +117,7 @@ export function HomeScreen({ navigation }: ScreenProps<'Home'>) {
       if (!value) {
         return;
       }
-      const outcome = await handleScan(value);
-      if (outcome.kind === 'join_requested') {
-        Alert.alert(
-          'Request sent',
-          `The admin of ${outcome.groupName} needs to approve you. Stay near them with Flare open.`,
-        );
-      } else if (outcome.kind === 'already_member') {
-        setActiveGroup(outcome.groupId);
-      } else if (outcome.kind === 'person') {
-        navigation.navigate('Person', {
-          address: outcome.address,
-          name: outcome.name,
-        });
-      }
+      await openCode(value);
     });
 
   const toggleSharing = () => {
@@ -489,8 +478,14 @@ export function HomeScreen({ navigation }: ScreenProps<'Home'>) {
                 <Text style={[styles.sheetBody, { color: theme.muted }]}>
                   {members.length === 0
                     ? 'Tap Details to invite friends.'
-                    : unplaced > 0
-                    ? `${unplaced} haven't shared a location yet · tap a dot for details`
+                    : unplaced > 0 || paused > 0
+                    ? `${[
+                        unplaced > 0 &&
+                          `${unplaced} haven't shared a location yet`,
+                        paused > 0 && `${paused} paused sharing`,
+                      ]
+                        .filter(Boolean)
+                        .join(' · ')} · tap a dot for details`
                     : 'Tap a dot for distance and direction'}
                 </Text>
               </View>

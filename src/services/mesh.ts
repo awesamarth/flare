@@ -239,6 +239,20 @@ function on<K extends ProtocolEvent['type']>(
 }
 
 function attachListeners(p: OfflineProtocol) {
+  if (__DEV__) {
+    // SDK transport logs (LAN dials, streams, Wi-Fi Direct). Debug level is
+    // per-BLE-advert noise, so it's left out.
+    on(p, 'diagnostic', event => {
+      if (event.level !== 'debug') {
+        console.log(
+          '[flare] sdk',
+          event.level,
+          event.message,
+          event.context ?? '',
+        );
+      }
+    });
+  }
   on(p, 'identity_ready', event => {
     useProfile.getState().setAddress(event.address);
   });
@@ -249,7 +263,8 @@ function attachListeners(p: OfflineProtocol) {
     runtime().upsertNeighbor({
       id: event.peer_id,
       transport: event.transport,
-      rssi: event.rssi,
+      // Typed optional, but native sends null when there is no reading.
+      rssi: typeof event.rssi === 'number' ? event.rssi : undefined,
       seenAt: Date.now(),
     });
   });
@@ -433,7 +448,13 @@ async function handleGroupMessage(event: GroupMessageReceivedEvent) {
   }
   const groups = useGroups.getState();
   const now = Date.now();
+  const firstContact = !groups.groups[groupId]?.members[sender]?.lastHeardAt;
   groups.updateMember(groupId, sender, { lastHeardAt: now });
+  if (firstContact) {
+    // They may have joined after our last announce (or missed it while the
+    // group welcome was in flight), so tell them who we are.
+    scheduleAnnounce(groupId);
+  }
   const conv = groupConv(groupId);
   const messages = useMessages.getState();
 
@@ -961,6 +982,8 @@ export async function addMember(
   groups.updateMember(groupId, address, name ? { name } : {});
   groups.removeJoinRequest(groupId, address);
   await refreshGroup(groupId).catch(() => {});
+  // refreshGroup can't spot them as new (they're already in local state).
+  scheduleAnnounce(groupId);
 }
 
 export async function approveJoin(groupId: string, address: string) {

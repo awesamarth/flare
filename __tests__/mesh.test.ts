@@ -309,6 +309,37 @@ describe('group messages', () => {
   });
 });
 
+describe('announcing', () => {
+  const profiles = () =>
+    (
+      mockProtocol.meshSendGroupMessage.mock.calls as unknown as [
+        string,
+        string,
+      ][]
+    )
+      .map(c => JSON.parse(c[1]))
+      .filter(m => m.k === 'profile');
+
+  it('introduces itself the first time a member is heard from', async () => {
+    jest.useFakeTimers({ doNotFake: ['setImmediate', 'nextTick'] });
+    try {
+      await groupMessage(
+        BOB,
+        encodeGroup({ k: 'chat', id: 'c1', text: 'hi', ts: 1 }),
+      );
+      await groupMessage(
+        BOB,
+        encodeGroup({ k: 'chat', id: 'c2', text: 'yo', ts: 2 }),
+      );
+      jest.advanceTimersByTime(2000);
+    } finally {
+      jest.useRealTimers();
+    }
+    await flush();
+    expect(profiles()).toEqual([expect.objectContaining({ name: 'Me' })]);
+  });
+});
+
 describe('joining', () => {
   const joinReq = encodeDirect({
     k: 'join_req',
@@ -321,9 +352,7 @@ describe('joining', () => {
   it('queues a join request for groups we administer', async () => {
     seedGroup({ isAdmin: true });
     await directMessage('off1zed', joinReq);
-    expect(
-      useGroups.getState().groups[G]?.joinRequests['off1zed'],
-    ).toMatchObject({
+    expect(useGroups.getState().groups[G]?.joinRequests.off1zed).toMatchObject({
       name: 'Zed',
     });
   });
